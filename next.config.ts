@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingIncludes: {
+    "/api/chart": ["./public/ephemeris/**/*"],
+  },
 };
 
 export default nextConfig;
