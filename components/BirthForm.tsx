@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { BirthInput, GeoResult, ResolvedBirth } from '@/lib/astro/types';
+import type { BirthInput, GeoResult, ResolvedBirth, NatalChart } from '@/lib/astro/types';
 
 type Props = {
-  onResolved: (birth: ResolvedBirth) => void;
+  onResolved: (birth: ResolvedBirth, chart: NatalChart) => void;
 };
 
 const EMPTY_FORM: BirthInput = {
@@ -82,14 +82,6 @@ export default function BirthForm({ onResolved }: Props) {
     setError(null);
 
     try {
-      const res = await fetch('/api/geocode/resolve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ geo: selectedGeo, form }),
-      });
-
-      // We resolve inline using the already-selected geo + a timezone lookup
-      // via the /api/chart route in Phase 2. For Phase 1, resolve client-side.
       const tzRes = await fetch('/api/timezone', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -117,8 +109,21 @@ export default function BirthForm({ onResolved }: Props) {
         julianDayUT,
       };
 
+      const chartRes = await fetch('/api/chart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resolved),
+      });
+
+      if (!chartRes.ok) {
+        const { error: msg } = await chartRes.json();
+        throw new Error(msg ?? 'Chart calculation failed');
+      }
+
+      const chart: NatalChart = await chartRes.json();
       console.log('[Amy\'s Chart] ResolvedBirth:', resolved);
-      onResolved(resolved);
+      console.log('[Amy\'s Chart] NatalChart:', chart);
+      onResolved(resolved, chart);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
