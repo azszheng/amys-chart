@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import BirthForm from '@/components/BirthForm';
+import WesternWheel from '@/components/charts/WesternWheel';
+import NorthIndianDiamond from '@/components/charts/NorthIndianDiamond';
 import type { ResolvedBirth, NatalChart } from '@/lib/astro/types';
 
 export default function Dashboard() {
@@ -33,21 +35,47 @@ export default function Dashboard() {
           className="mt-6 border p-5"
           style={{ borderColor: 'var(--line)', borderRadius: 'var(--radius)', backgroundColor: 'var(--bg-raised)' }}
         >
-          <h2
-            className="text-xs uppercase tracking-widest mb-1"
-            style={{ color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)' }}
+          <div
+            className="flex flex-col md:flex-row gap-6 items-start justify-center"
           >
-            Natal Chart — Raw Output
-          </h2>
-          <p className="text-xs mb-4" style={{ color: 'var(--fg-dim)' }}>
-            sweph v{chart.meta.swephVersion} · computed {chart.meta.computedAt} · Lahiri ayanamsa {chart.vedic.ayanamsa.toFixed(4)}°
-          </p>
-          <pre
-            className="text-xs overflow-auto max-h-[60vh]"
-            style={{ color: 'var(--fg)', fontFamily: 'var(--font-mono)', lineHeight: '1.6' }}
-          >
-            {JSON.stringify(chart, null, 2)}
-          </pre>
+            {/* Western tropical wheel */}
+            <div className="flex flex-col items-center gap-2">
+              <h3
+                className="text-xs uppercase tracking-widest"
+                style={{ color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)' }}
+              >
+                Western · Tropical · Placidus
+              </h3>
+              <div style={{ maxWidth: 460 }}>
+                <WesternWheel chart={chart} />
+              </div>
+              <p className="text-xs" style={{ color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)' }}>
+                ASC {chart.western.bodies.asc?.sign} · MC {chart.western.houses.mc.toFixed(1)}°
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div
+              className="hidden md:block self-stretch"
+              style={{ width: 1, backgroundColor: 'var(--line)' }}
+            />
+
+            {/* Vedic sidereal diamond */}
+            <div className="flex flex-col items-center gap-2">
+              <h3
+                className="text-xs uppercase tracking-widest"
+                style={{ color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)' }}
+              >
+                Vedic · Sidereal · Whole Sign
+              </h3>
+              <div style={{ maxWidth: 460 }}>
+                <NorthIndianDiamond chart={chart} />
+              </div>
+              <p className="text-xs" style={{ color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)' }}>
+                Lahiri ayanamsa {chart.vedic.ayanamsa.toFixed(4)}°
+              </p>
+            </div>
+          </div>
         </section>
       )}
     </div>
