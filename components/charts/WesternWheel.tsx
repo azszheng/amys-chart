@@ -87,13 +87,15 @@ export default function WesternWheel({ chart }: { chart: NatalChart }) {
     return { outer, inner, num: i + 1, numPt };
   });
 
-  // ASC / MC spoke lines
-  const ascA   = lonToAngle(asc, asc); // always 270°
-  const mcA    = lonToAngle(chart.western.houses.mc, asc);
-  const ascOut = polarToXY(R_OUTER, ascA);
-  const ascIn  = polarToXY(0,       ascA);
-  const mcOut  = polarToXY(R_OUTER, mcA);
-  const mcIn   = polarToXY(0,       mcA);
+  // ASC / MC axis lines — full diameters across the wheel
+  const ascA    = lonToAngle(asc, asc); // always 270°
+  const descA   = (ascA + 180) % 360;
+  const mcA     = lonToAngle(chart.western.houses.mc, asc);
+  const icA     = (mcA + 180) % 360;
+  const ascOut  = polarToXY(R_OUTER, ascA);
+  const descOut = polarToXY(R_OUTER, descA);
+  const mcOut   = polarToXY(R_OUTER, mcA);
+  const icOut   = polarToXY(R_OUTER, icA);
 
   return (
     <svg
@@ -181,10 +183,10 @@ export default function WesternWheel({ chart }: { chart: NatalChart }) {
         </g>
       ))}
 
-      {/* ASC / MC lines */}
-      <line x1={ascOut.x} y1={ascOut.y} x2={ascIn.x} y2={ascIn.y}
+      {/* ASC–DESC and MC–IC full diameter axes */}
+      <line x1={ascOut.x} y1={ascOut.y} x2={descOut.x} y2={descOut.y}
         stroke="var(--accent)" strokeWidth="1.2" />
-      <line x1={mcOut.x} y1={mcOut.y} x2={mcIn.x} y2={mcIn.y}
+      <line x1={mcOut.x} y1={mcOut.y} x2={icOut.x} y2={icOut.y}
         stroke="var(--fg-muted)" strokeWidth="0.8" strokeDasharray="3 2" />
 
       {/* Planet glyphs */}
@@ -217,16 +219,22 @@ export default function WesternWheel({ chart }: { chart: NatalChart }) {
         );
       })}
 
-      {/* ASC / MC labels */}
+      {/* ASC / DESC / MC / IC labels */}
       {(() => {
-        const ascPt = polarToXY(R_SIGN_IN - 12, ascA);
-        const mcPt  = polarToXY(R_SIGN_IN - 12, mcA);
+        const ascPt  = polarToXY(R_SIGN_IN - 12, ascA);
+        const descPt = polarToXY(R_SIGN_IN - 12, descA);
+        const mcPt   = polarToXY(R_SIGN_IN - 12, mcA);
+        const icPt   = polarToXY(R_SIGN_IN - 12, icA);
         return (
           <>
-            <text x={ascPt.x} y={ascPt.y} textAnchor="middle" dominantBaseline="central"
+            <text x={ascPt.x}  y={ascPt.y}  textAnchor="middle" dominantBaseline="central"
               fontSize="8" fill="var(--accent)" fontFamily="var(--font-mono)">AC</text>
-            <text x={mcPt.x} y={mcPt.y} textAnchor="middle" dominantBaseline="central"
+            <text x={descPt.x} y={descPt.y} textAnchor="middle" dominantBaseline="central"
+              fontSize="8" fill="var(--accent)" fontFamily="var(--font-mono)">DC</text>
+            <text x={mcPt.x}   y={mcPt.y}   textAnchor="middle" dominantBaseline="central"
               fontSize="8" fill="var(--fg-muted)" fontFamily="var(--font-mono)">MC</text>
+            <text x={icPt.x}   y={icPt.y}   textAnchor="middle" dominantBaseline="central"
+              fontSize="8" fill="var(--fg-muted)" fontFamily="var(--font-mono)">IC</text>
           </>
         );
       })()}

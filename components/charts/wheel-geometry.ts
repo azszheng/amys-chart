@@ -18,8 +18,9 @@ export function polarToXY(r: number, angleDeg: number, cx = CX, cy = CY) {
   return { x: cx + r * Math.sin(a), y: cy - r * Math.cos(a) };
 }
 
-// Angular midpoint between two SVG angles (going the short way)
+// Angular midpoint between two SVG angles (always takes the short arc)
 export function midAngle(a: number, b: number): number {
-  const diff = ((b - a + 360) % 360);
-  return (a + diff / 2) % 360;
+  let diff = ((b - a + 360) % 360);
+  if (diff > 180) diff -= 360; // prefer the short arc
+  return ((a + diff / 2) + 360) % 360;
 }
