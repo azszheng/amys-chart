@@ -11,8 +11,10 @@ import DignityTable from '@/components/tables/DignityTable';
 import VedicRashiTable from '@/components/tables/VedicRashiTable';
 import PlaceholderModal from '@/components/modals/PlaceholderModal';
 import TransitsDrawer from '@/components/modals/TransitsDrawer';
+import InterpretationPanel from '@/components/interpret/InterpretationPanel';
 import { SIGN_GLYPH } from '@/components/charts/glyphs';
 import type { ResolvedBirth, NatalChart } from '@/lib/astro/types';
+import type { InterpretSection } from '@/lib/ai/prompts';
 
 type TableTab = 'planets' | 'houses' | 'aspects' | 'dignities' | 'vedic';
 type ModalId  = 'transits' | 'progressions' | 'dashas' | 'synastry';
@@ -52,11 +54,12 @@ function chartSummary(chart: NatalChart, birth: ResolvedBirth): string {
 }
 
 export default function Dashboard() {
-  const [birth,    setBirth]    = useState<ResolvedBirth | null>(null);
-  const [chart,    setChart]    = useState<NatalChart | null>(null);
-  const [formOpen, setFormOpen] = useState(true);
-  const [tab,      setTab]      = useState<TableTab>('planets');
-  const [modal,    setModal]    = useState<ModalId | null>(null);
+  const [birth,     setBirth]     = useState<ResolvedBirth | null>(null);
+  const [chart,     setChart]     = useState<NatalChart | null>(null);
+  const [formOpen,  setFormOpen]  = useState(true);
+  const [tab,       setTab]       = useState<TableTab>('planets');
+  const [modal,     setModal]     = useState<ModalId | null>(null);
+  const [interpSection, setInterpSection] = useState<InterpretSection | null>(null);
 
   function handleResolved(b: ResolvedBirth, c: NatalChart) {
     setBirth(b);
@@ -165,9 +168,9 @@ export default function Dashboard() {
 
           {/* Table content */}
           <div style={{ padding: '4px 0 12px' }}>
-            {tab === 'planets'   && <PlanetTable    chart={chart} />}
-            {tab === 'houses'    && <HouseTable     chart={chart} />}
-            {tab === 'aspects'   && <AspectTable    chart={chart} />}
+            {tab === 'planets'   && <PlanetTable    chart={chart} onInterpret={setInterpSection} />}
+            {tab === 'houses'    && <HouseTable     chart={chart} onInterpret={setInterpSection} />}
+            {tab === 'aspects'   && <AspectTable    chart={chart} onInterpret={setInterpSection} />}
             {tab === 'dignities' && <DignityTable   chart={chart} />}
             {tab === 'vedic'     && <VedicRashiTable chart={chart} />}
           </div>
@@ -212,6 +215,14 @@ export default function Dashboard() {
           title={MODALS.find(m => m.id === modal)!.label}
           phase={MODALS.find(m => m.id === modal)!.phase}
           onClose={() => setModal(null)}
+        />
+      )}
+
+      {interpSection && chart && (
+        <InterpretationPanel
+          chart={chart}
+          section={interpSection}
+          onClose={() => setInterpSection(null)}
         />
       )}
     </div>

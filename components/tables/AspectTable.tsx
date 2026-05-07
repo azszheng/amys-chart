@@ -1,6 +1,8 @@
 import type { NatalChart } from '@/lib/astro/types';
 import { PLANET_GLYPH } from '@/components/charts/glyphs';
 import { ASPECT_SYMBOL, ASPECT_COLOR } from './tableUtils';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildAspectSection, type InterpretSection } from '@/lib/ai/prompts';
 
 const BODY_ABBR: Record<string, string> = {
   sun: 'Sun', moon: 'Moon', mercury: 'Mer', venus: 'Ven', mars: 'Mar',
@@ -9,7 +11,7 @@ const BODY_ABBR: Record<string, string> = {
   partOfFortune: 'Frt', asc: 'AC', mc: 'MC',
 };
 
-export default function AspectTable({ chart }: { chart: NatalChart }) {
+export default function AspectTable({ chart, onInterpret }: { chart: NatalChart; onInterpret?: (s: InterpretSection) => void }) {
   const { aspects } = chart.western;
 
   const sorted = [...aspects].sort((a, b) => a.orb - b.orb);
@@ -24,6 +26,7 @@ export default function AspectTable({ chart }: { chart: NatalChart }) {
             <th style={th}>Body B</th>
             <th style={{ ...th, fontFamily: 'var(--font-mono)' }}>Orb</th>
             <th style={{ ...th, textAlign: 'center' }}>A/S</th>
+            {onInterpret && <th style={{ ...th, width: 28 }} />}
           </tr>
         </thead>
         <tbody>
@@ -52,6 +55,11 @@ export default function AspectTable({ chart }: { chart: NatalChart }) {
                 <td style={{ ...td, textAlign: 'center', fontFamily: 'var(--font-mono)', color: 'var(--fg-dim)' }}>
                   {asp.applying ? 'A' : 'S'}
                 </td>
+                {onInterpret && (
+                  <td style={{ ...td, textAlign: 'center' }}>
+                    <InterpretButton section={buildAspectSection(asp)} onInterpret={onInterpret} />
+                  </td>
+                )}
               </tr>
             );
           })}

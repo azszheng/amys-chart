@@ -1,0 +1,181 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import type { NatalChart } from '@/lib/astro/types';
+import type { InterpretSection } from '@/lib/ai/prompts';
+
+type Props = {
+  chart: NatalChart;
+  section: InterpretSection;
+  onClose: () => void;
+};
+
+function SimpleMarkdown({ text }: { text: string }) {
+  return (
+    <div style={{ lineHeight: 1.75, color: 'var(--fg)', fontSize: 13 }}>
+      {text.split('\n\n').filter(Boolean).map((para, i) => (
+        <p key={i} style={{ margin: '0 0 14px' }}>
+          {para.split('\n').map((line, j, arr) => (
+            <span key={j}>{line}{j < arr.length - 1 && <br />}</span>
+          ))}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+export default function InterpretationPanel({ chart, section, onClose }: Props) {
+  const [text,    setText]    = useState('');
+  const [loading, setLoading] = useState(true);
+  const [done,    setDone]    = useState(false);
+  const [error,   setError]   = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    setText('');
+    setLoading(true);
+    setDone(false);
+    setError(null);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    (async () => {
+      try {
+        const res = await fetch('/api/interpret', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chart, section }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+          setError(err.error ?? `HTTP ${res.status}`);
+          setLoading(false);
+          return;
+        }
+
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        setLoading(false);
+
+        while (true) {
+          const { done: streamDone, value } = await reader.read();
+          if (streamDone) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const payload = line.slice(6).trim();
+            if (payload === '[DONE]') { setDone(true); return; }
+            try {
+              const { token, error: e } = JSON.parse(payload);
+              if (e) { setError(e); return; }
+              if (token) setText(prev => prev + token);
+            } catch { /* ignore malformed line */ }
+          }
+        }
+        setDone(true);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          setError((err as Error).message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    return () => controller.abort();
+  }, [chart, section]);
+
+  function handleStop() {
+    abortRef.current?.abort();
+    setDone(true);
+    setLoading(false);
+  }
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(text);
+  }
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 60 }}
+      />
+
+      {/* Panel */}
+      <div style={{
+        position: 'fixed', top: 0, right: 0, bottom: 0,
+        width: 'min(55vw, 500px)',
+        background: 'var(--bg-raised)',
+        borderLeft: '1px solid var(--line)',
+        zIndex: 70,
+        display: 'flex', flexDirection: 'column',
+      }}>
+        {/* Header */}
+        <div style={{ padding: '18px 24px 14px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div>
+            <p style={{ margin: '0 0 3px', fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--fg-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              AI Interpretation
+            </p>
+            <h3 style={{ margin: 0, fontSize: 13, color: 'var(--fg)', fontFamily: 'var(--font-sans)' }}>
+              {section.label}
+            </h3>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--fg-dim)', fontSize: 18, padding: '2px 6px', flexShrink: 0 }}>×</button>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+          {loading && (
+            <p style={{ color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+              Thinking…
+            </p>
+          )}
+          {error && (
+            <p style={{ color: 'var(--aspect-dynamic)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+              Error: {error}
+            </p>
+          )}
+          {text && <SimpleMarkdown text={text} />}
+          {!done && !loading && !error && (
+            <span style={{ display: 'inline-block', width: 8, height: 14, background: 'var(--accent)', opacity: 0.7, verticalAlign: 'middle', animation: 'blink 1s step-end infinite' }} />
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ borderTop: '1px solid var(--line)', padding: '10px 24px', display: 'flex', gap: 8, alignItems: 'center' }}>
+          {!done && !error && (
+            <button
+              onClick={handleStop}
+              style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', background: 'none', border: '1px solid var(--line)', borderRadius: 2, padding: '4px 12px', cursor: 'pointer' }}
+            >
+              Stop
+            </button>
+          )}
+          {text && (
+            <button
+              onClick={handleCopy}
+              style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', background: 'none', border: '1px solid var(--line)', borderRadius: 2, padding: '4px 12px', cursor: 'pointer' }}
+            >
+              Copy
+            </button>
+          )}
+          <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)' }}>
+            {done ? `${text.split(/\s+/).filter(Boolean).length} words` : loading ? '…' : 'streaming'}
+          </span>
+        </div>
+      </div>
+    </>
+  );
+}

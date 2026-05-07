@@ -1,6 +1,8 @@
 import type { NatalChart, BodyId } from '@/lib/astro/types';
 import { toDMS, signLabel, ASPECT_COLOR } from './tableUtils';
 import { PLANET_GLYPH } from '@/components/charts/glyphs';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildBodySection, type InterpretSection } from '@/lib/ai/prompts';
 
 const PLANET_ROWS: BodyId[] = [
   'sun', 'moon', 'mercury', 'venus', 'mars',
@@ -24,7 +26,7 @@ const DIGNITY_COLOR: Record<string, string> = {
   peregrine:  'var(--fg-dim)',
 };
 
-export default function PlanetTable({ chart }: { chart: NatalChart }) {
+export default function PlanetTable({ chart, onInterpret }: { chart: NatalChart; onInterpret?: (s: InterpretSection) => void }) {
   const { bodies, dignities } = chart.western;
   void ASPECT_COLOR;
 
@@ -39,6 +41,7 @@ export default function PlanetTable({ chart }: { chart: NatalChart }) {
             <th style={th}>H</th>
             <th style={{ ...th, fontFamily: 'var(--font-mono)' }}>Speed</th>
             <th style={th}>Dignity</th>
+            {onInterpret && <th style={{ ...th, width: 28 }} />}
           </tr>
         </thead>
         <tbody>
@@ -77,6 +80,11 @@ export default function PlanetTable({ chart }: { chart: NatalChart }) {
                 <td style={{ ...td, color: digLabel ? DIGNITY_COLOR[digLabel] : 'var(--fg-dim)' }}>
                   {digLabel ? digLabel.charAt(0).toUpperCase() + digLabel.slice(1) : '—'}
                 </td>
+                {onInterpret && (
+                  <td style={{ ...td, textAlign: 'center' }}>
+                    <InterpretButton section={buildBodySection(id, chart)} onInterpret={onInterpret} />
+                  </td>
+                )}
               </tr>
             );
           })}

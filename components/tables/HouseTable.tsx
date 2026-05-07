@@ -1,8 +1,10 @@
 import type { NatalChart } from '@/lib/astro/types';
 import { SIGNS } from '@/lib/astro/types';
 import { toDMS, signLabel, SIGN_RULER } from './tableUtils';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildHouseSection, type InterpretSection } from '@/lib/ai/prompts';
 
-export default function HouseTable({ chart }: { chart: NatalChart }) {
+export default function HouseTable({ chart, onInterpret }: { chart: NatalChart; onInterpret?: (s: InterpretSection) => void }) {
   const { cusps } = chart.western.houses;
 
   return (
@@ -16,6 +18,7 @@ export default function HouseTable({ chart }: { chart: NatalChart }) {
             <th style={{ ...th, fontFamily: 'var(--font-mono)' }}>Degree</th>
             <th style={th}>Trad. Ruler</th>
             <th style={th}>Modern Ruler</th>
+            {onInterpret && <th style={{ ...th, width: 28 }} />}
           </tr>
         </thead>
         <tbody>
@@ -50,6 +53,11 @@ export default function HouseTable({ chart }: { chart: NatalChart }) {
                 </td>
                 <td style={{ ...td, color: 'var(--fg-muted)' }}>{ruler.trad}</td>
                 <td style={{ ...td, color: 'var(--fg-dim)' }}>{ruler.modern ?? '—'}</td>
+                {onInterpret && (
+                  <td style={{ ...td, textAlign: 'center' }}>
+                    <InterpretButton section={buildHouseSection(houseNum, chart)} onInterpret={onInterpret} />
+                  </td>
+                )}
               </tr>
             );
           })}
