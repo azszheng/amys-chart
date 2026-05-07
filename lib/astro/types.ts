@@ -105,6 +105,17 @@ export type Aspect = {
   applying: boolean;
 };
 
+export type TransitAspect = {
+  transitBody: BodyId;
+  natalBody: BodyId;
+  kind: AspectKind;
+  exactAngle: number;
+  actualAngle: number;
+  orb: number;
+  applying: boolean;
+  daysToExact: number; // days until (if applying) or since (if separating) exact
+};
+
 // ── Dignities ────────────────────────────────────────────────────────────────
 
 export type DignityLabel = 'domicile' | 'exaltation' | 'detriment' | 'fall' | 'peregrine' | null;
