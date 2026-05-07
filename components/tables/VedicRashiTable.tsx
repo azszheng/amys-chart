@@ -1,0 +1,78 @@
+import type { NatalChart, BodyId } from '@/lib/astro/types';
+import { PLANET_GLYPH } from '@/components/charts/glyphs';
+import { toDMS, signLabel } from './tableUtils';
+
+const VEDIC_ROWS: BodyId[] = [
+  'sun', 'moon', 'mercury', 'venus', 'mars',
+  'jupiter', 'saturn', 'trueNode', 'southNode',
+];
+
+const BODY_NAME: Record<string, string> = {
+  sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars',
+  jupiter: 'Jupiter', saturn: 'Saturn', trueNode: 'Rahu', southNode: 'Ketu',
+};
+
+const LORD_GLYPH: Record<string, string> = {
+  sun: '☉', moon: '☽', mercury: '☿', venus: '♀', mars: '♂',
+  jupiter: '♃', saturn: '♄', trueNode: '☊', southNode: '☋',
+};
+
+export default function VedicRashiTable({ chart }: { chart: NatalChart }) {
+  const { bodies } = chart.vedic;
+
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+        <thead>
+          <tr style={{ borderBottom: '1px solid var(--line)', color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)', textAlign: 'left' }}>
+            <th style={th}>Planet</th>
+            <th style={th}>Rashi</th>
+            <th style={{ ...th, fontFamily: 'var(--font-mono)' }}>Degree</th>
+            <th style={th}>Nakshatra</th>
+            <th style={{ ...th, textAlign: 'center' }}>Pada</th>
+            <th style={th}>Lord</th>
+            <th style={{ ...th, textAlign: 'center' }}>H</th>
+          </tr>
+        </thead>
+        <tbody>
+          {VEDIC_ROWS.map(id => {
+            const body = bodies[id];
+            if (!body) return null;
+
+            const glyph   = PLANET_GLYPH[id] ?? '';
+            const name    = BODY_NAME[id] ?? id;
+            const isRetro = body.isRetrograde;
+            const lordGlyph = LORD_GLYPH[body.nakshatraLord] ?? '';
+            const lordName  = BODY_NAME[body.nakshatraLord] ?? body.nakshatraLord;
+            const nakName   = body.nakshatra.charAt(0).toUpperCase() + body.nakshatra.slice(1).replace(/([A-Z])/g, ' $1').trim();
+
+            return (
+              <tr key={id} style={{ borderBottom: '1px solid var(--line)', color: 'var(--fg)' }}>
+                <td style={{ ...td, color: isRetro ? 'var(--retro)' : 'var(--fg-glyph)', whiteSpace: 'nowrap' }}>
+                  {isRetro ? '℞ ' : ''}{glyph} {name}
+                </td>
+                <td style={td}>{signLabel(body.sign)}</td>
+                <td style={{ ...td, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)' }}>
+                  {toDMS(body.signDegree)}{isRetro ? ' R' : ''}
+                </td>
+                <td style={{ ...td, color: 'var(--fg-muted)' }}>{nakName}</td>
+                <td style={{ ...td, textAlign: 'center', fontFamily: 'var(--font-mono)', color: 'var(--fg-dim)' }}>
+                  {body.nakshatraPada}
+                </td>
+                <td style={{ ...td, color: 'var(--fg-glyph)', whiteSpace: 'nowrap' }}>
+                  {lordGlyph} {lordName}
+                </td>
+                <td style={{ ...td, textAlign: 'center', fontFamily: 'var(--font-mono)', color: 'var(--fg-dim)' }}>
+                  {body.house}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+const th: React.CSSProperties = { padding: '6px 10px', fontWeight: 500, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em' };
+const td: React.CSSProperties = { padding: '5px 10px', verticalAlign: 'middle' };
