@@ -172,7 +172,7 @@ export default function Dashboard() {
             {tab === 'houses'    && <HouseTable     chart={chart} onInterpret={setInterpSection} />}
             {tab === 'aspects'   && <AspectTable    chart={chart} onInterpret={setInterpSection} />}
             {tab === 'dignities' && <DignityTable   chart={chart} />}
-            {tab === 'vedic'     && <VedicRashiTable chart={chart} />}
+            {tab === 'vedic'     && <VedicRashiTable chart={chart} onInterpret={setInterpSection} />}
           </div>
         </section>
       )}

@@ -1,6 +1,8 @@
 import type { NatalChart, BodyId } from '@/lib/astro/types';
 import { PLANET_GLYPH } from '@/components/charts/glyphs';
 import { toDMS, signLabel } from './tableUtils';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildVedicBodySection, type InterpretSection } from '@/lib/ai/prompts';
 
 const VEDIC_ROWS: BodyId[] = [
   'sun', 'moon', 'mercury', 'venus', 'mars',
@@ -17,7 +19,7 @@ const LORD_GLYPH: Record<string, string> = {
   jupiter: '♃', saturn: '♄', trueNode: '☊', southNode: '☋',
 };
 
-export default function VedicRashiTable({ chart }: { chart: NatalChart }) {
+export default function VedicRashiTable({ chart, onInterpret }: { chart: NatalChart; onInterpret?: (s: InterpretSection) => void }) {
   const { bodies } = chart.vedic;
 
   return (
@@ -32,6 +34,7 @@ export default function VedicRashiTable({ chart }: { chart: NatalChart }) {
             <th style={{ ...th, textAlign: 'center' }}>Pada</th>
             <th style={th}>Lord</th>
             <th style={{ ...th, textAlign: 'center' }}>H</th>
+            {onInterpret && <th style={{ ...th, width: 28 }} />}
           </tr>
         </thead>
         <tbody>
@@ -65,6 +68,11 @@ export default function VedicRashiTable({ chart }: { chart: NatalChart }) {
                 <td style={{ ...td, textAlign: 'center', fontFamily: 'var(--font-mono)', color: 'var(--fg-dim)' }}>
                   {body.house}
                 </td>
+                {onInterpret && (
+                  <td style={{ ...td, textAlign: 'center' }}>
+                    <InterpretButton section={buildVedicBodySection(id, chart)} onInterpret={onInterpret} />
+                  </td>
+                )}
               </tr>
             );
           })}

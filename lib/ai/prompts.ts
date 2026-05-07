@@ -118,6 +118,22 @@ export function buildAspectSection(asp: Aspect): InterpretSection {
   };
 }
 
+export function buildVedicBodySection(bodyId: BodyId, chart: NatalChart): InterpretSection {
+  const body = chart.vedic.bodies[bodyId];
+  if (!body) return { type: 'body', label: `Vedic ${bodyId}`, prompt: `Interpret ${bodyId} in this Vedic chart.` };
+
+  const retro = body.isRetrograde ? ' retrograde' : '';
+  const nakName = body.nakshatra.charAt(0).toUpperCase() + body.nakshatra.slice(1).replace(/([A-Z])/g, ' $1').trim();
+  const lordName = body.nakshatraLord;
+  const bodyName = bodyId === 'trueNode' ? 'Rahu' : bodyId === 'southNode' ? 'Ketu' : bodyId;
+
+  return {
+    type: 'body',
+    label: `Vedic · ${bodyName} in ${body.sign} · ${nakName} pada ${body.nakshatraPada}`,
+    prompt: `Interpret ${bodyName}${retro} in the Vedic (sidereal) chart: ${body.sign} at ${body.signDegree.toFixed(2)}°, house ${body.house}, nakshatra ${nakName} pada ${body.nakshatraPada}, nakshatra lord ${lordName}. Use Jyotish (Vedic astrology) framework — reference the nakshatra's qualities, the rashi, and the house. Weave in relevant patterns from the full chart context.`,
+  };
+}
+
 function ordSuffix(n: number): string {
   if (n === 1) return 'st';
   if (n === 2) return 'nd';
