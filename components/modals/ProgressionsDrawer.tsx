@@ -59,10 +59,15 @@ export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalCha
         zIndex: 50, display: 'flex', flexDirection: 'column', overflowY: 'auto',
       }}>
         {/* Header */}
-        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Secondary Progressions
-          </h2>
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div>
+            <h2 style={{ margin: '0 0 4px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Secondary Progressions
+            </h2>
+            <p style={{ margin: 0, fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.5, maxWidth: 340 }}>
+              A symbolic timing technique where each day after your birth represents one year of your life — used to track long-term inner development and maturing themes.
+            </p>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <input type="date" value={date} onChange={e => setDate(e.target.value)}
               style={{ background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: 2, color: 'var(--fg)', fontFamily: 'var(--font-mono)', fontSize: 11, padding: '4px 8px' }} />

@@ -12,12 +12,22 @@ import VedicRashiTable from '@/components/tables/VedicRashiTable';
 import PlaceholderModal from '@/components/modals/PlaceholderModal';
 import TransitsDrawer from '@/components/modals/TransitsDrawer';
 import ProgressionsDrawer from '@/components/modals/ProgressionsDrawer';
+import DashasDrawer from '@/components/modals/DashasDrawer';
+import SynastryDrawer from '@/components/modals/SynastryDrawer';
 import InterpretationPanel from '@/components/interpret/InterpretationPanel';
 import { SIGN_GLYPH } from '@/components/charts/glyphs';
 import type { ResolvedBirth, NatalChart } from '@/lib/astro/types';
 import type { InterpretSection } from '@/lib/ai/prompts';
 
 type TableTab = 'planets' | 'houses' | 'aspects' | 'dignities' | 'vedic';
+
+const TAB_DESC: Record<TableTab, string> = {
+  planets:   'Where each planet was at the moment of your birth — its zodiac sign, degree, house placement, and whether it was retrograde.',
+  houses:    'The 12 life areas defined by your birth time and location, from identity & self (1st house) to the unconscious & hidden matters (12th house).',
+  aspects:   'Geometric angles between planets — conjunctions, trines, squares, etc. — describing how the planetary energies interact and influence each other.',
+  dignities: 'Whether each planet is comfortable or strained in its current sign, rating how freely it can express its natural energy.',
+  vedic:     'Planetary positions recalculated using the sidereal zodiac (≈23° earlier than tropical) and nakshatra (lunar mansion) placements, used in Indian Jyotish astrology.',
+};
 type ModalId  = 'transits' | 'progressions' | 'dashas' | 'synastry';
 
 const TABS: { id: TableTab; label: string }[] = [
@@ -121,6 +131,9 @@ export default function Dashboard() {
 
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                 <h3 style={sectionHead}>Western · Tropical · Placidus</h3>
+                <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', textAlign: 'center', maxWidth: 340, lineHeight: 1.5 }}>
+                  The standard Western birth chart — planetary positions mapped to the tropical zodiac with houses divided by the Placidus system.
+                </p>
                 <div style={{ maxWidth: 420 }}>
                   <WesternWheel chart={chart} />
                 </div>
@@ -128,6 +141,9 @@ export default function Dashboard() {
 
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                 <h3 style={sectionHead}>Vedic · Sidereal · Whole Sign</h3>
+                <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', textAlign: 'center', maxWidth: 340, lineHeight: 1.5 }}>
+                  The same birth data recast using the sidereal zodiac (shifted ≈23° from tropical) and whole-sign houses, as used in Indian Jyotish astrology.
+                </p>
                 <div style={{ maxWidth: 420 }}>
                   <NorthIndianDiamond chart={chart} />
                 </div>
@@ -165,6 +181,13 @@ export default function Dashboard() {
                 {t.label}
               </button>
             ))}
+          </div>
+
+          {/* Tab description */}
+          <div style={{ padding: '8px 16px 4px' }}>
+            <p style={{ margin: 0, fontSize: 11, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.6 }}>
+              {TAB_DESC[tab]}
+            </p>
           </div>
 
           {/* Table content */}
@@ -214,7 +237,13 @@ export default function Dashboard() {
       {modal === 'progressions' && chart && (
         <ProgressionsDrawer chart={chart} onClose={() => setModal(null)} />
       )}
-      {modal && modal !== 'transits' && modal !== 'progressions' && (
+      {modal === 'dashas' && chart && (
+        <DashasDrawer chart={chart} onClose={() => setModal(null)} />
+      )}
+      {modal === 'synastry' && chart && (
+        <SynastryDrawer chart={chart} onClose={() => setModal(null)} />
+      )}
+      {modal && modal !== 'transits' && modal !== 'progressions' && modal !== 'dashas' && modal !== 'synastry' && (
         <PlaceholderModal
           title={MODALS.find(m => m.id === modal)!.label}
           phase={MODALS.find(m => m.id === modal)!.phase}

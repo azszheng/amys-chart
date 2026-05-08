@@ -88,10 +88,15 @@ export default function TransitsDrawer({ chart, onClose }: Props) {
         overflowY: 'auto',
       }}>
         {/* Header */}
-        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Transits
-          </h2>
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div>
+            <h2 style={{ margin: '0 0 4px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Transits
+            </h2>
+            <p style={{ margin: 0, fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.5, maxWidth: 340 }}>
+              Current planetary positions in the sky compared to your natal chart — shows which cosmic energies are active in your life right now.
+            </p>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <input
               type="date"
