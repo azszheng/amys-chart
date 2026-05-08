@@ -105,6 +105,21 @@ export type Aspect = {
   applying: boolean;
 };
 
+export type ProgressedAspect = {
+  progressedBody: BodyId;
+  natalBody: BodyId;
+  kind: AspectKind;
+  orb: number;
+  applying: boolean;
+};
+
+export type ProgressedChart = {
+  forDate: string;          // target date the user selected
+  progressedDateISO: string; // symbolic date (birth + age days)
+  bodies: Partial<Record<BodyId, BodyPosition>>;
+  aspects: ProgressedAspect[];
+};
+
 export type TransitAspect = {
   transitBody: BodyId;
   natalBody: BodyId;

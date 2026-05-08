@@ -11,6 +11,7 @@ import DignityTable from '@/components/tables/DignityTable';
 import VedicRashiTable from '@/components/tables/VedicRashiTable';
 import PlaceholderModal from '@/components/modals/PlaceholderModal';
 import TransitsDrawer from '@/components/modals/TransitsDrawer';
+import ProgressionsDrawer from '@/components/modals/ProgressionsDrawer';
 import InterpretationPanel from '@/components/interpret/InterpretationPanel';
 import { SIGN_GLYPH } from '@/components/charts/glyphs';
 import type { ResolvedBirth, NatalChart } from '@/lib/astro/types';
@@ -210,7 +211,10 @@ export default function Dashboard() {
       {modal === 'transits' && chart && (
         <TransitsDrawer chart={chart} onClose={() => setModal(null)} />
       )}
-      {modal && modal !== 'transits' && (
+      {modal === 'progressions' && chart && (
+        <ProgressionsDrawer chart={chart} onClose={() => setModal(null)} />
+      )}
+      {modal && modal !== 'transits' && modal !== 'progressions' && (
         <PlaceholderModal
           title={MODALS.find(m => m.id === modal)!.label}
           phase={MODALS.find(m => m.id === modal)!.phase}
