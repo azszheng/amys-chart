@@ -45,13 +45,15 @@ export default function SynastryDrawer({ chart: chartA, onClose }: { chart: Nata
       }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <div>
-            <h2 style={{ margin: '0 0 4px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ margin: '0 0 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               Synastry
             </h2>
-            <p style={{ margin: 0, fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.5, maxWidth: 380 }}>
-              Two birth charts compared side by side — the inter-aspects between Person A and Person B's planets reveal the dynamics, natural chemistry, and friction in a relationship.
-            </p>
+            <div style={descBox}>
+              <p style={descText}>
+                <strong>Compatibility and relationship astrology.</strong> Synastry overlays two people's birth charts and looks at the angles (aspects) formed between their planets. When Person A's Venus aligns with Person B's Mars, for example, it can indicate strong attraction. Harmonious aspects (trines, sextiles) suggest ease and natural flow; tense aspects (squares, oppositions) point to friction — which can be growth-producing or challenging depending on the planets involved. Enter a second person's birth data below to see your inter-aspects.
+              </p>
+            </div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--fg-dim)', fontSize: 18, padding: '2px 6px', flexShrink: 0 }}>×</button>
         </div>
@@ -159,3 +161,19 @@ export default function SynastryDrawer({ chart: chartA, onClose }: { chart: Nata
 
 const th: React.CSSProperties = { padding: '5px 8px', fontWeight: 500, textAlign: 'left' };
 const td: React.CSSProperties = { padding: '5px 8px', verticalAlign: 'middle' };
+
+const descBox: React.CSSProperties = {
+  background: 'var(--bg)',
+  border: '1px solid var(--line)',
+  borderLeft: '3px solid var(--accent)',
+  borderRadius: 4,
+  padding: '10px 14px',
+};
+
+const descText: React.CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  color: 'var(--fg)',
+  lineHeight: 1.7,
+  fontFamily: 'var(--font-sans, sans-serif)',
+};

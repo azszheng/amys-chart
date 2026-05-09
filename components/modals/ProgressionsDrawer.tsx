@@ -60,13 +60,15 @@ export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalCha
       }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <div>
-            <h2 style={{ margin: '0 0 4px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ margin: '0 0 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               Secondary Progressions
             </h2>
-            <p style={{ margin: 0, fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.5, maxWidth: 340 }}>
-              A symbolic timing technique where each day after your birth represents one year of your life — used to track long-term inner development and maturing themes.
-            </p>
+            <div style={descBox}>
+              <p style={descText}>
+                <strong>A symbolic map of inner growth over time.</strong> The technique works by a simple rule: each day after your birth equals one year of your life. So if you want to see your "progressed chart" at age 30, the system looks at the sky 30 days after your birth. Progressions move slowly and show the gradual evolution of your personality, values, and inner world — where transits show outer events, progressions show who you're becoming.
+              </p>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <input type="date" value={date} onChange={e => setDate(e.target.value)}
@@ -180,3 +182,19 @@ export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalCha
 
 const th: React.CSSProperties = { padding: '5px 8px', fontWeight: 500, textAlign: 'left' };
 const td: React.CSSProperties = { padding: '5px 8px', verticalAlign: 'middle' };
+
+const descBox: React.CSSProperties = {
+  background: 'var(--bg)',
+  border: '1px solid var(--line)',
+  borderLeft: '3px solid var(--accent)',
+  borderRadius: 4,
+  padding: '10px 14px',
+};
+
+const descText: React.CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  color: 'var(--fg)',
+  lineHeight: 1.7,
+  fontFamily: 'var(--font-sans, sans-serif)',
+};

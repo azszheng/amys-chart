@@ -111,13 +111,15 @@ export default function DashasDrawer({ chart, onClose }: { chart: NatalChart; on
       }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <div>
-            <h2 style={{ margin: '0 0 4px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ margin: '0 0 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               Vimshottari Dashas
             </h2>
-            <p style={{ margin: 0, fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.5, maxWidth: 340 }}>
-              A Vedic timing system that divides your life into planetary periods (mahadashas) and sub-periods (antardashas) — each planet governs a chapter of your journey, based on your Moon's nakshatra at birth.
-            </p>
+            <div style={descBox}>
+              <p style={descText}>
+                <strong>Vedic planetary time cycles.</strong> In Jyotish astrology, your entire life is divided into a 120-year sequence of planetary "chapters" called Mahadashas — for example, a 20-year Venus period, a 6-year Sun period, and so on. Within each Mahadasha there are shorter sub-periods (Antardashas). The sequence and start date are determined by the position of your Moon at birth. The planet ruling a period tends to color the themes, opportunities, and challenges of that time.
+              </p>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <input type="date" value={date} onChange={e => setDate(e.target.value)}
@@ -198,3 +200,19 @@ export default function DashasDrawer({ chart, onClose }: { chart: NatalChart; on
 
 const th: React.CSSProperties = { padding: '5px 8px', fontWeight: 500, textAlign: 'left' };
 const td: React.CSSProperties = { padding: '5px 8px', verticalAlign: 'middle' };
+
+const descBox: React.CSSProperties = {
+  background: 'var(--bg)',
+  border: '1px solid var(--line)',
+  borderLeft: '3px solid var(--accent)',
+  borderRadius: 4,
+  padding: '10px 14px',
+};
+
+const descText: React.CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  color: 'var(--fg)',
+  lineHeight: 1.7,
+  fontFamily: 'var(--font-sans, sans-serif)',
+};

@@ -89,13 +89,15 @@ export default function TransitsDrawer({ chart, onClose }: Props) {
       }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <div>
-            <h2 style={{ margin: '0 0 4px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ margin: '0 0 8px', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               Transits
             </h2>
-            <p style={{ margin: 0, fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.5, maxWidth: 340 }}>
-              Current planetary positions in the sky compared to your natal chart — shows which cosmic energies are active in your life right now.
-            </p>
+            <div style={descBox}>
+              <p style={descText}>
+                <strong>Where the planets are right now</strong>, compared to where they were when you were born. When a moving planet passes over one of your natal planets, it "activates" that part of your chart — this is called a transit. A Saturn transit might bring responsibility or restriction; a Jupiter transit often brings expansion and opportunity. Select a date to see which transits are in effect.
+              </p>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <input
@@ -186,3 +188,19 @@ export default function TransitsDrawer({ chart, onClose }: Props) {
     </>
   );
 }
+
+const descBox: React.CSSProperties = {
+  background: 'var(--bg)',
+  border: '1px solid var(--line)',
+  borderLeft: '3px solid var(--accent)',
+  borderRadius: 4,
+  padding: '10px 14px',
+};
+
+const descText: React.CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  color: 'var(--fg)',
+  lineHeight: 1.7,
+  fontFamily: 'var(--font-sans, sans-serif)',
+};

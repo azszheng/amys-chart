@@ -21,12 +21,27 @@ import type { InterpretSection } from '@/lib/ai/prompts';
 
 type TableTab = 'planets' | 'houses' | 'aspects' | 'dignities' | 'vedic';
 
-const TAB_DESC: Record<TableTab, string> = {
-  planets:   'Where each planet was at the moment of your birth — its zodiac sign, degree, house placement, and whether it was retrograde.',
-  houses:    'The 12 life areas defined by your birth time and location, from identity & self (1st house) to the unconscious & hidden matters (12th house).',
-  aspects:   'Geometric angles between planets — conjunctions, trines, squares, etc. — describing how the planetary energies interact and influence each other.',
-  dignities: 'Whether each planet is comfortable or strained in its current sign, rating how freely it can express its natural energy.',
-  vedic:     'Planetary positions recalculated using the sidereal zodiac (≈23° earlier than tropical) and nakshatra (lunar mansion) placements, used in Indian Jyotish astrology.',
+const TAB_DESC: Record<TableTab, { title: string; body: string }> = {
+  planets: {
+    title: 'Planets',
+    body:  'Shows where each planet was in the sky the moment you were born. Each planet represents a different part of life — the Sun is your core identity, the Moon your emotions, Mercury your mind and communication, Venus love and beauty, Mars drive and action, and so on. The sign a planet occupies colors how that energy expresses itself; the house shows which life area it plays out in.',
+  },
+  houses: {
+    title: 'Houses',
+    body:  'The birth chart is divided into 12 "houses," each governing a different area of life — from the 1st house (your appearance and how others see you) through to the 12th (the subconscious, solitude, and hidden matters). The house a planet falls in shows where its energy is most active in your day-to-day life. Houses are calculated from your exact birth time and location.',
+  },
+  aspects: {
+    title: 'Aspects',
+    body:  'When two planets are a specific number of degrees apart, they form an "aspect" — a geometric relationship that describes how they interact. Trines (120°) and sextiles (60°) are generally harmonious and easy; squares (90°) and oppositions (180°) create tension and challenge that often drives growth; conjunctions (0°) merge the two energies together.',
+  },
+  dignities: {
+    title: 'Dignities',
+    body:  'Each planet has signs where it feels at home and signs where it struggles. "Domicile" means the planet rules that sign and operates at full strength. "Exaltation" is another comfortable placement. "Detriment" and "Fall" are opposite positions — the planet is in unfamiliar territory and its energy is harder to express cleanly. This doesn\'t make a placement "bad," just different in character.',
+  },
+  vedic: {
+    title: 'Vedic Rashi (Signs)',
+    body:  'The Vedic equivalent of the Western planets table, but calculated using the sidereal zodiac. Also includes each planet\'s Nakshatra — one of 27 lunar mansions that divide the zodiac into finer 13.3° segments. Nakshatras add a layer of nuance to a planet\'s sign placement and are especially important in Vedic timing (Dashas) and compatibility.',
+  },
 };
 type ModalId  = 'transits' | 'progressions' | 'dashas' | 'synastry';
 
@@ -129,21 +144,27 @@ export default function Dashboard() {
           <div style={{ padding: '16px 20px 8px' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
 
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <h3 style={sectionHead}>Western · Tropical · Placidus</h3>
-                <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', textAlign: 'center', maxWidth: 340, lineHeight: 1.5 }}>
-                  The standard Western birth chart — planetary positions mapped to the tropical zodiac with houses divided by the Placidus system.
-                </p>
+                <div style={descBox}>
+                  <strong style={descTitle}>Western Astrology</strong>
+                  <p style={descText}>
+                    The most widely used system in the West. Planets are placed in the <em>tropical zodiac</em>, which is tied to the seasons (Aries begins at the spring equinox). The chart wheel shows which sign and house each planet occupied the moment you were born, and the angles between them.
+                  </p>
+                </div>
                 <div style={{ maxWidth: 420 }}>
                   <WesternWheel chart={chart} />
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <h3 style={sectionHead}>Vedic · Sidereal · Whole Sign</h3>
-                <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', textAlign: 'center', maxWidth: 340, lineHeight: 1.5 }}>
-                  The same birth data recast using the sidereal zodiac (shifted ≈23° from tropical) and whole-sign houses, as used in Indian Jyotish astrology.
-                </p>
+                <div style={descBox}>
+                  <strong style={descTitle}>Vedic / Jyotish Astrology</strong>
+                  <p style={descText}>
+                    The classical system of India, over 2,000 years old. It uses the <em>sidereal zodiac</em> — tied to the actual star constellations, currently ~23° behind the tropical zodiac — which is why your sign may differ from Western. Houses use the simpler Whole Sign system, and timing is tracked through planetary cycles called Dashas.
+                  </p>
+                </div>
                 <div style={{ maxWidth: 420 }}>
                   <NorthIndianDiamond chart={chart} />
                 </div>
@@ -184,10 +205,9 @@ export default function Dashboard() {
           </div>
 
           {/* Tab description */}
-          <div style={{ padding: '8px 16px 4px' }}>
-            <p style={{ margin: 0, fontSize: 11, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', lineHeight: 1.6 }}>
-              {TAB_DESC[tab]}
-            </p>
+          <div style={{ margin: '12px 16px 4px', ...descBox }}>
+            <strong style={descTitle}>{TAB_DESC[tab].title}</strong>
+            <p style={descText}>{TAB_DESC[tab].body}</p>
           </div>
 
           {/* Table content */}
@@ -261,3 +281,30 @@ export default function Dashboard() {
     </div>
   );
 }
+
+const descBox: React.CSSProperties = {
+  background: 'var(--bg)',
+  border: '1px solid var(--line)',
+  borderLeft: '3px solid var(--accent)',
+  borderRadius: 4,
+  padding: '10px 14px',
+  maxWidth: 380,
+};
+
+const descTitle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 11,
+  fontFamily: 'var(--font-mono)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.07em',
+  color: 'var(--fg-muted)',
+  marginBottom: 6,
+};
+
+const descText: React.CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  color: 'var(--fg)',
+  lineHeight: 1.7,
+  fontFamily: 'var(--font-sans, sans-serif)',
+};
