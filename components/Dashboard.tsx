@@ -146,10 +146,16 @@ export default function Dashboard() {
 
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <h3 style={sectionHead}>Western · Tropical · Placidus</h3>
-                <div style={descBox}>
-                  <strong style={descTitle}>Western Astrology</strong>
+                <div style={{ ...descBox, maxWidth: 420 }}>
+                  <strong style={descTitle}>Western Astrology — Personality &amp; Psychology</strong>
                   <p style={descText}>
-                    The most widely used system in the West. Planets are placed in the <em>tropical zodiac</em>, which is tied to the seasons (Aries begins at the spring equinox). The chart wheel shows which sign and house each planet occupied the moment you were born, and the angles between them.
+                    The Western chart is a map of your <strong>conscious self, ego, and personality</strong> — who you are and how you show up in the world. It uses the <em>tropical zodiac</em>, anchored to Earth's seasons (Aries always begins at the spring equinox), making it a system rooted in present, earthly experience.
+                  </p>
+                  <p style={{ ...descText, marginTop: 8 }}>
+                    Your Sun sign describes your core identity and life purpose; your Moon sign shows your emotional world and instincts; your Rising sign (Ascendant) is the mask you wear — how others first perceive you. Together these three form the backbone of your Western chart. The planets, signs, houses, and aspects layer on top to paint a detailed picture of your psychology, strengths, wounds, and patterns of behavior.
+                  </p>
+                  <p style={{ ...descText, marginTop: 8 }}>
+                    <strong>Best used for:</strong> understanding personality, psychological patterns, relationships, and how you experience life consciously.
                   </p>
                 </div>
                 <div style={{ maxWidth: 420 }}>
@@ -159,10 +165,16 @@ export default function Dashboard() {
 
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <h3 style={sectionHead}>Vedic · Sidereal · Whole Sign</h3>
-                <div style={descBox}>
-                  <strong style={descTitle}>Vedic / Jyotish Astrology</strong>
+                <div style={{ ...descBox, maxWidth: 420 }}>
+                  <strong style={descTitle}>Vedic / Jyotish Astrology — Karma &amp; Destiny</strong>
                   <p style={descText}>
-                    The classical system of India, over 2,000 years old. It uses the <em>sidereal zodiac</em> — tied to the actual star constellations, currently ~23° behind the tropical zodiac — which is why your sign may differ from Western. Houses use the simpler Whole Sign system, and timing is tracked through planetary cycles called Dashas.
+                    The Vedic chart reveals your <strong>soul's journey, karma, and life circumstances</strong> — the deeper purpose and conditions you were born into. It is a system over 5,000 years old, rooted in the Indian tradition of Jyotish ("the science of light"). It uses the <em>sidereal zodiac</em>, tied to the actual star constellations rather than the seasons, which currently runs about 23° behind the Western zodiac. This is why most people find their Vedic sign is one sign earlier than their Western sign.
+                  </p>
+                  <p style={{ ...descText, marginTop: 8 }}>
+                    Where Western astrology focuses on who you <em>are</em>, Vedic astrology focuses on what you are <em>here to do</em> — your dharma (life path), karma (past-life debts and gifts), artha (livelihood), and moksha (spiritual liberation). The Ascendant sign is the foundation of the entire chart. Timing is tracked through Dasha cycles — planetary periods that govern specific chapters of your life with remarkable precision.
+                  </p>
+                  <p style={{ ...descText, marginTop: 8 }}>
+                    <strong>Best used for:</strong> life circumstances, career and relationship timing, spiritual path, and understanding your soul's deeper intentions.
                   </p>
                 </div>
                 <div style={{ maxWidth: 420 }}>

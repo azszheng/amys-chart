@@ -3,6 +3,7 @@ import { toDMS, signLabel, ASPECT_COLOR } from './tableUtils';
 import { PLANET_GLYPH } from '@/components/charts/glyphs';
 import InterpretButton from '@/components/interpret/InterpretButton';
 import { buildBodySection, type InterpretSection } from '@/lib/ai/prompts';
+import Tooltip from '@/components/ui/Tooltip';
 
 const PLANET_ROWS: BodyId[] = [
   'sun', 'moon', 'mercury', 'venus', 'mars',
@@ -35,12 +36,12 @@ export default function PlanetTable({ chart, onInterpret }: { chart: NatalChart;
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--line)', color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)', textAlign: 'left' }}>
-            <th style={th}>Body</th>
-            <th style={th}>Sign</th>
-            <th style={{ ...th, fontFamily: 'var(--font-mono)' }}>Position</th>
-            <th style={th}>H</th>
-            <th style={{ ...th, fontFamily: 'var(--font-mono)' }}>Speed</th>
-            <th style={th}>Dignity</th>
+            <th style={th}><Tooltip text="The celestial body. Includes the 10 planets (Sun & Moon are 'luminaries'), plus special points: North Node (karmic destiny axis), Chiron (wounds & healing), Black Moon Lilith (the shadow/instinctual self), Part of Fortune (prosperity), Ascendant (how the world sees you), and Midheaven (career & public role).">Body</Tooltip></th>
+            <th style={th}><Tooltip text="The zodiac sign the planet occupies at birth. The sign acts like a lens that colors how the planet's energy expresses itself. Mars in Aries is bold and aggressive; Mars in Libra is indirect and diplomatic. The sign describes the 'how' — the style and manner.">Sign</Tooltip></th>
+            <th style={{ ...th, fontFamily: 'var(--font-mono)' }}><Tooltip text="The exact position within the sign, in degrees° minutes' seconds″. Each sign spans 30°. 0° is the very start of the sign; 29° is the final degree. 'R' indicates retrograde — the planet appeared to move backward in the sky from Earth's perspective, turning its energy more inward and reflective.">Position</Tooltip></th>
+            <th style={th}><Tooltip text="Which of the 12 houses (life areas) this planet occupies. 1st: identity/body, 2nd: money/values, 3rd: communication/siblings, 4th: home/roots, 5th: creativity/romance, 6th: health/daily work, 7th: partnerships/marriage, 8th: transformation/death/shared resources, 9th: philosophy/travel/higher learning, 10th: career/public status, 11th: friends/community, 12th: unconscious/spirituality/hidden matters." align="center">House</Tooltip></th>
+            <th style={{ ...th, fontFamily: 'var(--font-mono)' }}><Tooltip text="How fast the planet is moving in degrees per day. Positive = direct (forward) motion; negative = retrograde (backward). The Moon moves ~13°/day; the Sun ~1°/day; Saturn ~0.03°/day; Pluto less than 0.04°/day. Slower-moving planets create longer-lasting influences in your life.">Speed</Tooltip></th>
+            <th style={th}><Tooltip text="Whether the planet is in a sign that supports or challenges its natural energy. Domicile: the planet rules this sign — most comfortable and powerful. Exaltation: honored guest — very effective. Detriment: opposite of domicile — uncomfortable, energy expressed awkwardly. Fall: opposite of exaltation — most challenged. Peregrine: no special relationship — neutral expression." align="right">Dignity</Tooltip></th>
             {onInterpret && <th style={{ ...th, width: 28 }} />}
           </tr>
         </thead>
