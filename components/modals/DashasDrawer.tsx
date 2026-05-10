@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { NatalChart } from '@/lib/astro/types';
 import type { DashaResult, DashaPeriod, DashaLord } from '@/lib/astro/dashas';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildDashaSection, type InterpretSection } from '@/lib/ai/prompts';
 
 const LORD_NAME: Record<DashaLord, string> = {
   ketu: 'Ketu', venus: 'Venus', sun: 'Sun', moon: 'Moon', mars: 'Mars',
@@ -74,7 +76,7 @@ function PeriodCard({ period, targetISO, label }: { period: DashaPeriod; targetI
   );
 }
 
-export default function DashasDrawer({ chart, onClose }: { chart: NatalChart; onClose: () => void }) {
+export default function DashasDrawer({ chart, onClose, onInterpret }: { chart: NatalChart; onClose: () => void; onInterpret?: (s: InterpretSection) => void }) {
   const [date,    setDate]    = useState(todayISO());
   const [result,  setResult]  = useState<DashaResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -147,6 +149,17 @@ export default function DashasDrawer({ chart, onClose }: { chart: NatalChart; on
               <div style={{ padding: '0 24px 20px', borderBottom: '1px solid var(--line)', marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <PeriodCard period={result.mahadasha}  targetISO={date} label="Mahadasha" />
                 <PeriodCard period={result.antardasha} targetISO={date} label="Antardasha (Bhukti)" />
+                {onInterpret && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <InterpretButton
+                      section={buildDashaSection(result.mahadasha, result.antardasha, chart)}
+                      onInterpret={onInterpret}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)' }}>
+                      Interpret current {LORD_NAME[result.mahadasha.lord]}/{LORD_NAME[result.antardasha.lord]} period
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Full timeline */}

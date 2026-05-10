@@ -1,11 +1,30 @@
-import type { NatalChart, BodyId, Aspect } from '@/lib/astro/types';
+import type { NatalChart, BodyId, Aspect, TransitAspect, ProgressedAspect, BodyPosition } from '@/lib/astro/types';
 import { SIGNS } from '@/lib/astro/types';
+import type { DashaPeriod, DashaLord } from '@/lib/astro/dashas';
+import type { SynastryAspect } from '@/lib/astro/synastry';
 
 export type InterpretSection = {
-  type: 'body' | 'house' | 'aspect';
+  type: 'body' | 'house' | 'aspect' | 'transit' | 'progression' | 'dasha' | 'synastry';
   label: string;   // display header, e.g. "Sun in Scorpio · House 3"
   prompt: string;  // question sent to Claude
 };
+
+const BODY_LABEL: Partial<Record<BodyId, string>> = {
+  sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars',
+  jupiter: 'Jupiter', saturn: 'Saturn', uranus: 'Uranus', neptune: 'Neptune',
+  pluto: 'Pluto', trueNode: 'North Node', southNode: 'South Node',
+  chiron: 'Chiron', blackMoonLilith: 'Lilith', asc: 'Ascendant', mc: 'Midheaven',
+};
+
+function cap(s: string) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function dashaLordToBodyId(lord: DashaLord): BodyId | null {
+  const map: Record<DashaLord, BodyId | null> = {
+    sun: 'sun', moon: 'moon', mercury: 'mercury', venus: 'venus', mars: 'mars',
+    jupiter: 'jupiter', saturn: 'saturn', rahu: 'trueNode', ketu: 'southNode',
+  };
+  return map[lord] ?? null;
+}
 
 export const SYSTEM_PROMPT = `You are an astrological interpreter for Amy's Chart. Your voice bridges two ways of knowing: the rigorous/psychological (patterns, archetypes, developmental lenses) and the archetypal/mystical (the soul-level, the symbolic, the felt sense of planetary energies). You honor both without collapsing into either.
 
@@ -131,6 +150,96 @@ export function buildVedicBodySection(bodyId: BodyId, chart: NatalChart): Interp
     type: 'body',
     label: `Vedic · ${bodyName} in ${body.sign} · ${nakName} pada ${body.nakshatraPada}`,
     prompt: `Interpret ${bodyName}${retro} in the Vedic (sidereal) chart: ${body.sign} at ${body.signDegree.toFixed(2)}°, house ${body.house}, nakshatra ${nakName} pada ${body.nakshatraPada}, nakshatra lord ${lordName}. Use Jyotish (Vedic astrology) framework — reference the nakshatra's qualities, the rashi, and the house. Weave in relevant patterns from the full chart context.`,
+  };
+}
+
+export function buildTransitSection(transit: TransitAspect, natal: NatalChart): InterpretSection {
+  const natalBody  = natal.western.bodies[transit.natalBody];
+  const tName      = BODY_LABEL[transit.transitBody] ?? transit.transitBody;
+  const nName      = BODY_LABEL[transit.natalBody]   ?? transit.natalBody;
+  const timing     = transit.applying
+    ? transit.daysToExact < 1 ? 'exact within hours' : `~${Math.round(transit.daysToExact)} days to exact`
+    : `~${Math.round(transit.daysToExact)} days past exact`;
+
+  return {
+    type: 'transit',
+    label: `Transit: ${tName} ${transit.kind} natal ${nName}`,
+    prompt: `Interpret this current transit: Transiting ${tName} is forming a ${transit.kind} (orb ${transit.orb.toFixed(1)}°, ${transit.applying ? 'applying — ' + timing : 'separating — ' + timing}) with natal ${nName} in ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'}. What life themes and energies is this transit activating? Outer planet transits last months to years; inner planet transits pass in days. How can the person work consciously with this transit? Reference the natal chart context.`,
+  };
+}
+
+export function buildProgressedBodySection(
+  bodyId: BodyId,
+  progBody: BodyPosition,
+  natal: NatalChart,
+): InterpretSection {
+  const name      = BODY_LABEL[bodyId] ?? bodyId;
+  const natalBody = natal.western.bodies[bodyId];
+
+  return {
+    type: 'progression',
+    label: `Progressed ${name} in ${cap(progBody.sign)}`,
+    prompt: `Interpret this secondary progression: The progressed ${name} is currently at ${progBody.signDegree.toFixed(1)}° ${progBody.sign}, House ${progBody.house}${progBody.isRetrograde ? ', retrograde' : ''}. The natal ${name} is in ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'}. Secondary progressions move slowly (Sun ~1°/year, Moon ~1 sign per 2–2.5 years) and describe long-term inner development and the soul's current chapter. What themes and psychological shifts does this placement suggest? Reference the natal chart context.`,
+  };
+}
+
+export function buildProgressedAspectSection(asp: ProgressedAspect, natal: NatalChart): InterpretSection {
+  const pName     = BODY_LABEL[asp.progressedBody] ?? asp.progressedBody;
+  const nName     = BODY_LABEL[asp.natalBody]      ?? asp.natalBody;
+  const natalBody = natal.western.bodies[asp.natalBody];
+
+  return {
+    type: 'progression',
+    label: `Progressed ${pName} ${asp.kind} natal ${nName}`,
+    prompt: `Interpret this secondary progressed aspect: Progressed ${pName} is forming a ${asp.kind} (orb ${asp.orb.toFixed(1)}°, ${asp.applying ? 'applying' : 'separating'}) with natal ${nName} in ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'}. Secondary progressions are slow and deep — they describe multi-year inner evolution rather than day-to-day events. What psychological and life themes does this progression mark? What is the person being called to develop or integrate? Reference the natal chart context.`,
+  };
+}
+
+export function buildDashaSection(maha: DashaPeriod, antar: DashaPeriod, natal: NatalChart): InterpretSection {
+  const mahaName = cap(maha.lord);
+  const antarName = cap(antar.lord);
+
+  const mahaBodyId  = dashaLordToBodyId(maha.lord);
+  const antarBodyId = dashaLordToBodyId(antar.lord);
+  const mahaVedic   = mahaBodyId  ? natal.vedic.bodies[mahaBodyId]  : null;
+  const antarVedic  = antarBodyId ? natal.vedic.bodies[antarBodyId] : null;
+
+  const mahaStr  = mahaVedic  ? `${mahaName} is in ${mahaVedic.sign} (nakshatra: ${mahaVedic.nakshatra}), House ${mahaVedic.house}` : mahaName;
+  const antarStr = antarVedic ? `${antarName} is in ${antarVedic.sign} (nakshatra: ${antarVedic.nakshatra}), House ${antarVedic.house}` : antarName;
+
+  return {
+    type: 'dasha',
+    label: `${mahaName} Mahadasha · ${antarName} Antardasha`,
+    prompt: `Interpret this Vimshottari Dasha period using Jyotish (Vedic astrology): Currently in ${mahaName} Mahadasha (${maha.startISO} → ${maha.endISO}, ${maha.durationYears.toFixed(1)} years total) with ${antarName} Antardasha (${antar.startISO} → ${antar.endISO}). In this natal Vedic chart: ${mahaStr}; ${antarStr}. What are the karmic themes, dharmic focus, life areas, gifts, and challenges of this ${mahaName}/${antarName} period? Reference the planets' nakshatra qualities, house lordships, and how the two dasha lords relate to each other in the chart.`,
+  };
+}
+
+export function buildSynastryAspectSection(
+  asp: SynastryAspect,
+  chartA: NatalChart,
+  chartB: NatalChart,
+): InterpretSection {
+  const aName  = BODY_LABEL[asp.bodyA] ?? asp.bodyA;
+  const bName  = BODY_LABEL[asp.bodyB] ?? asp.bodyB;
+  const nameA  = chartA.input.name?.trim() || 'Person A';
+  const nameB  = chartB.input.name?.trim() || 'Person B';
+  const bodyA  = chartA.western.bodies[asp.bodyA];
+  const bodyB  = chartB.western.bodies[asp.bodyB];
+
+  const bSun  = chartB.western.bodies.sun;
+  const bMoon = chartB.western.bodies.moon;
+  const bAsc  = chartB.western.bodies.asc;
+  const bCtx  = [
+    bSun  ? `Sun in ${bSun.sign}`          : '',
+    bMoon ? `Moon in ${bMoon.sign}`         : '',
+    bAsc  ? `Rising ${bAsc.sign}`          : '',
+    bodyB ? `${bName} in ${bodyB.sign}, H${bodyB.house}` : '',
+  ].filter(Boolean).join('; ');
+
+  return {
+    type: 'synastry',
+    label: `Synastry: ${nameA}'s ${aName} ${asp.kind} ${nameB}'s ${bName}`,
+    prompt: `Interpret this synastry inter-aspect: ${nameA}'s ${aName} in ${bodyA?.sign ?? '?'}, House ${bodyA?.house ?? '?'} is forming a ${asp.kind} (orb ${asp.orb.toFixed(1)}°) with ${nameB}'s ${bName}. ${nameB}'s key placements: ${bCtx}. The full natal chart in context is ${nameA}'s. Explore what this inter-aspect creates between these two people — the attraction or tension it generates, what each person experiences, and how they can work with this dynamic consciously. Be specific to both charts.`,
   };
 }
 

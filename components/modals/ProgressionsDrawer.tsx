@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import type { NatalChart, ProgressedChart, BodyId } from '@/lib/astro/types';
 import { PLANET_GLYPH } from '@/components/charts/glyphs';
 import { ASPECT_SYMBOL, ASPECT_COLOR, signLabel, toDMS } from '@/components/tables/tableUtils';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildProgressedBodySection, buildProgressedAspectSection, type InterpretSection } from '@/lib/ai/prompts';
 
 const BODY_NAME: Record<string, string> = {
   sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars',
@@ -23,7 +25,7 @@ function fmtDate(iso: string) {
   return new Date(iso + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 }
 
-export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalChart; onClose: () => void }) {
+export default function ProgressionsDrawer({ chart, onClose, onInterpret }: { chart: NatalChart; onClose: () => void; onInterpret?: (s: InterpretSection) => void }) {
   const [date,   setDate]   = useState(todayISO());
   const [result, setResult] = useState<ProgressedChart | null>(null);
   const [loading, setLoading] = useState(false);
@@ -105,6 +107,7 @@ export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalCha
                       <th style={th}>Sign</th>
                       <th style={th}>Degree</th>
                       <th style={{ ...th, textAlign: 'center' }}>R</th>
+                      {onInterpret && <th style={{ ...th, width: 28 }} />}
                     </tr>
                   </thead>
                   <tbody>
@@ -119,6 +122,11 @@ export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalCha
                           <td style={td}>{signLabel(b.sign)}</td>
                           <td style={{ ...td, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)' }}>{toDMS(b.signDegree)}</td>
                           <td style={{ ...td, textAlign: 'center', color: 'var(--retro)', fontSize: 10 }}>{b.isRetrograde ? '℞' : ''}</td>
+                          {onInterpret && (
+                            <td style={{ ...td, textAlign: 'center' }}>
+                              <InterpretButton section={buildProgressedBodySection(id, b, chart)} onInterpret={onInterpret} />
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
@@ -142,6 +150,7 @@ export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalCha
                         <th style={th}>Natal</th>
                         <th style={{ ...th, fontFamily: 'var(--font-mono)' }}>Orb</th>
                         <th style={{ ...th, textAlign: 'center' }}>A/S</th>
+                        {onInterpret && <th style={{ ...th, width: 28 }} />}
                       </tr>
                     </thead>
                     <tbody>
@@ -159,6 +168,11 @@ export default function ProgressionsDrawer({ chart, onClose }: { chart: NatalCha
                             <td style={{ ...td, textAlign: 'center', fontFamily: 'var(--font-mono)', color: asp.applying ? 'var(--aspect-harmonious)' : 'var(--fg-dim)', fontSize: 10 }}>
                               {asp.applying ? 'A' : 'S'}
                             </td>
+                            {onInterpret && (
+                              <td style={{ ...td, textAlign: 'center' }}>
+                                <InterpretButton section={buildProgressedAspectSection(asp, chart)} onInterpret={onInterpret} />
+                              </td>
+                            )}
                           </tr>
                         );
                       })}

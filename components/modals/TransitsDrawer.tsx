@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import type { NatalChart, TransitAspect, BodyId } from '@/lib/astro/types';
 import { PLANET_GLYPH } from '@/components/charts/glyphs';
 import { ASPECT_SYMBOL, ASPECT_COLOR } from '@/components/tables/tableUtils';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildTransitSection, type InterpretSection } from '@/lib/ai/prompts';
 
 const BODY_NAME: Record<string, string> = {
   sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars',
@@ -32,9 +34,9 @@ function fmtDays(d: number): string {
   return `${Math.round(d * 24)}h`;
 }
 
-type Props = { chart: NatalChart; onClose: () => void };
+type Props = { chart: NatalChart; onClose: () => void; onInterpret?: (s: InterpretSection) => void };
 
-export default function TransitsDrawer({ chart, onClose }: Props) {
+export default function TransitsDrawer({ chart, onClose, onInterpret }: Props) {
   const [date,     setDate]     = useState(todayISO());
   const [aspects,  setAspects]  = useState<TransitAspect[] | null>(null);
   const [loading,  setLoading]  = useState(false);
@@ -155,21 +157,21 @@ export default function TransitsDrawer({ chart, onClose }: Props) {
                   const symbol = ASPECT_SYMBOL[asp.kind] ?? asp.kind;
 
                   return (
-                    <div key={i} style={{ padding: '6px 24px 6px 36px', display: 'grid', gridTemplateColumns: '24px 1fr 60px 30px 50px', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--line)', fontSize: 12 }}>
-                      {/* Aspect symbol */}
+                    <div key={i} style={{ padding: '6px 24px 6px 36px', display: 'grid', gridTemplateColumns: '24px 1fr 60px 30px 50px 24px', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--line)', fontSize: 12 }}>
                       <span style={{ color, fontWeight: 600, fontSize: 14, textAlign: 'center' }}>{symbol}</span>
-                      {/* Natal body */}
                       <span style={{ color: 'var(--fg-glyph)', whiteSpace: 'nowrap' }}>{nGlyph} {nName}</span>
-                      {/* Orb */}
                       <span style={{ color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', fontSize: 11, textAlign: 'right' }}>{asp.orb.toFixed(2)}°</span>
-                      {/* A/S */}
                       <span style={{ color: asp.applying ? 'var(--aspect-harmonious)' : 'var(--fg-dim)', fontFamily: 'var(--font-mono)', fontSize: 10, textAlign: 'center' }}>
                         {asp.applying ? 'A' : 'S'}
                       </span>
-                      {/* Days to exact */}
                       <span style={{ color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)', fontSize: 11, textAlign: 'right' }}>
                         {fmtDays(asp.daysToExact)}
                       </span>
+                      {onInterpret && (
+                        <span style={{ display: 'flex', justifyContent: 'center' }}>
+                          <InterpretButton section={buildTransitSection(asp, chart)} onInterpret={onInterpret} />
+                        </span>
+                      )}
                     </div>
                   );
                 })}

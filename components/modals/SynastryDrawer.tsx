@@ -6,6 +6,8 @@ import { computeSynastry } from '@/lib/astro/synastry';
 import BirthForm from '@/components/BirthForm';
 import { PLANET_GLYPH } from '@/components/charts/glyphs';
 import { ASPECT_SYMBOL, ASPECT_COLOR } from '@/components/tables/tableUtils';
+import InterpretButton from '@/components/interpret/InterpretButton';
+import { buildSynastryAspectSection, type InterpretSection } from '@/lib/ai/prompts';
 
 const BODY_NAME: Record<string, string> = {
   sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars',
@@ -26,7 +28,7 @@ function personSummary(chart: NatalChart): string {
   return parts.join(' · ');
 }
 
-export default function SynastryDrawer({ chart: chartA, onClose }: { chart: NatalChart; onClose: () => void }) {
+export default function SynastryDrawer({ chart: chartA, onClose, onInterpret }: { chart: NatalChart; onClose: () => void; onInterpret?: (s: InterpretSection) => void }) {
   const [chartB, setChartB] = useState<NatalChart | null>(null);
 
   const aspects = chartB ? computeSynastry(chartA, chartB) : [];
@@ -117,6 +119,7 @@ export default function SynastryDrawer({ chart: chartA, onClose }: { chart: Nata
                       <th style={{ ...th, textAlign: 'center' }}>Asp</th>
                       <th style={th}>{nameB}</th>
                       <th style={{ ...th }}>Orb</th>
+                      {onInterpret && <th style={{ ...th, width: 28 }} />}
                     </tr>
                   </thead>
                   <tbody>
@@ -139,6 +142,14 @@ export default function SynastryDrawer({ chart: chartA, onClose }: { chart: Nata
                           <td style={{ ...td, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)', fontSize: 11 }}>
                             {asp.orb.toFixed(2)}°
                           </td>
+                          {onInterpret && chartB && (
+                            <td style={{ ...td, textAlign: 'center' }}>
+                              <InterpretButton
+                                section={buildSynastryAspectSection(asp, chartA, chartB)}
+                                onInterpret={onInterpret}
+                              />
+                            </td>
+                          )}
                         </tr>
                       );
                     })}

@@ -264,16 +264,16 @@ export default function Dashboard() {
 
       {/* ── Modals / drawers ── */}
       {modal === 'transits' && chart && (
-        <TransitsDrawer chart={chart} onClose={() => setModal(null)} />
+        <TransitsDrawer chart={chart} onClose={() => setModal(null)} onInterpret={setInterpSection} />
       )}
       {modal === 'progressions' && chart && (
-        <ProgressionsDrawer chart={chart} onClose={() => setModal(null)} />
+        <ProgressionsDrawer chart={chart} onClose={() => setModal(null)} onInterpret={setInterpSection} />
       )}
       {modal === 'dashas' && chart && (
-        <DashasDrawer chart={chart} onClose={() => setModal(null)} />
+        <DashasDrawer chart={chart} onClose={() => setModal(null)} onInterpret={setInterpSection} />
       )}
       {modal === 'synastry' && chart && (
-        <SynastryDrawer chart={chart} onClose={() => setModal(null)} />
+        <SynastryDrawer chart={chart} onClose={() => setModal(null)} onInterpret={setInterpSection} />
       )}
       {modal && modal !== 'transits' && modal !== 'progressions' && modal !== 'dashas' && modal !== 'synastry' && (
         <PlaceholderModal
