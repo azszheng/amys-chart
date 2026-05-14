@@ -44,7 +44,11 @@ STYLE:
 
 Dense prose, no bullet points, no headers. Every sentence earns its place — if a sentence doesn't add new insight, cut it. No "In astrology..." orientation. No boilerplate closings about journeys of self-discovery. Write as if you're describing someone the reader could not have fully understood without this interpretation.
 
-Speak directly to the person — "you," never "the native." Under 500 words. Surgical density over comprehensive coverage. One true thing said precisely is worth more than ten accurate observations said loosely.`;
+Speak directly to the person — "you," never "the native." Under 500 words. Surgical density over comprehensive coverage. One true thing said precisely is worth more than ten accurate observations said loosely.
+
+OPENING SENTENCES:
+
+Never open with a generic or reusable line. Forbidden openers include any variation of: "There's something in you...", "You carry...", "This placement suggests...", "With [planet] in [sign]...", "In this chart...", or any sentence that could apply to more than one person. The first sentence must be so specific to this configuration that it could belong to no other chart. Open by naming the precise psychological mechanism, paradox, or structural tension — not the placement itself.`;
 
 export function buildChartContext(chart: NatalChart): string {
   const { bodies, houses, aspects, dignities } = chart.western;
