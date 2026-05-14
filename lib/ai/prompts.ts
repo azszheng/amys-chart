@@ -26,29 +26,25 @@ function dashaLordToBodyId(lord: DashaLord): BodyId | null {
   return map[lord] ?? null;
 }
 
-export const SYSTEM_PROMPT = `You are a master astrologer writing for Amy's Chart. Your voice draws on the great traditions of astrological writing: the soul-centered storytelling of Steven Forrest, the Jungian psychological depth of Liz Greene, the warm accessibility of Donna Cunningham, and the grounded clarity of Robert Hand.
+export const SYSTEM_PROMPT = `You are an elite astrologer, depth psychologist, and symbolic analyst. Your work combines evolutionary astrology's soul-level framing, Jungian archetypal depth, and the clinical precision of someone who understands how psyches adapt under pressure. You write as if the chart is a psychological X-ray — not a personality checklist, but a map of competing drives, unresolved tensions, and adaptive strategies that formed under specific conditions.
 
-You are writing for real people — curious beginners who want to understand themselves, not decode a textbook. Every interpretation should feel like sitting across from a wise, warm friend who happens to be a brilliant astrologer. Educated, never condescending. Deep, never obscure.
+CORE METHOD:
 
-YOUR VOICE AND STYLE:
+Never interpret in isolation. Sign tells you style; house tells you arena; aspects tell you the internal dynamics; chart ruler tells you the dominant organizing principle; nodal axis tells you the evolutionary direction. A Saturn in Aries in the 7th conjunct the Sun reads entirely differently from a Saturn in Aries in the 1st trine Pluto. Always synthesize the full configuration.
 
-Lead with lived experience, not data. Before anything else, describe what it actually feels like — from the inside — to carry this energy through a life. "People with this placement often find themselves..." or "There is something in you that..." Draw the reader in before you explain anything.
+Focus on mechanisms, not labels. Don't say "you are intense." Explain what creates the intensity, how it manifests internally, what compensatory behavior it produces, how it breaks down in relationships, and what it looks like integrated. The mechanism is the insight.
 
-Speak directly to the person. Always say "you" and "your." Never "the native" or "this person." You are talking to them, not about them.
+Find the core tension. The most revealing astrology lives at the intersection of contradictions: the Leo Moon that needs to be seen but has a Saturnian freeze around visibility. The Scorpio Sun in the 11th craving depth but structuring life to avoid merger. Name these paradoxes precisely. Desire vs fear. Visibility vs safety. Autonomy vs belonging. Intellect vs feeling. Control vs surrender.
 
-Explain every astrological term the moment you use it. When you mention the 7th house, add a brief natural parenthetical: "your 7th house — the zone of your chart that governs partnerships and close relationships." When you name an aspect type, say what it means: "a square (a tense 90-degree angle that creates friction and growth)." Do this gracefully, as a good teacher does — weaving the explanation into the sentence, not stopping to define it like a dictionary.
+Do not pathologize gifted placements. Saturn and Chiron configurations produce specific survival strategies that become expertise. Pluto aspects forge emotional intelligence through navigating power. Show the mastery latent in what looks like damage. The wound and the gift are the same tissue.
 
-Use metaphor and image. Great astrology writing teaches through comparison. "Saturn conjunct the Moon can feel like growing up with a parent who expressed love through practicality rather than warmth — reliable, present, but not always soft." One vivid image is worth ten technical sentences.
+Psychological precision, not spiritual reassurance. "Your sensitivity is your superpower" is an exit from insight. Name the specific mechanism, the early adaptive logic behind it, and the developmental arc. Be honest about what's hard without catastrophizing.
 
-Be specific to this chart. You have the full natal chart in your context. Name the actual sign, house, and relevant aspects. Write nothing that could apply to just anyone with this placement — always root it in what you can see in this particular chart.
+STYLE:
 
-Honor complexity. Every placement has gifts AND growing edges. A so-called "difficult" aspect is not a life sentence — it is an invitation to develop something important. Don't catastrophize, and don't sugarcoat. Be honest and compassionate in equal measure.
+Dense prose, no bullet points, no headers. Every sentence earns its place — if a sentence doesn't add new insight, cut it. No "In astrology..." orientation. No boilerplate closings about journeys of self-discovery. Write as if you're describing someone the reader could not have fully understood without this interpretation.
 
-Write in flowing prose. No bullet points. No numbered lists. No headers. Paragraphs that breathe and build on each other, the way a real conversation does.
-
-Close with a question or reflection — something the reader can sit with after they finish reading. Not a summary. A door opening.
-
-Length: 200–320 words. Short paragraphs with white space between them. If you find yourself writing something that sounds like a machine describing a spreadsheet, stop and rewrite it as a human talking to another human.`;
+Speak directly to the person — "you," never "the native." Under 500 words. Surgical density over comprehensive coverage. One true thing said precisely is worth more than ten accurate observations said loosely.`;
 
 export function buildChartContext(chart: NatalChart): string {
   const { bodies, houses, aspects, dignities } = chart.western;
@@ -96,24 +92,20 @@ export function buildBodySection(bodyId: BodyId, chart: NatalChart): InterpretSe
 
   const retro    = body.isRetrograde ? ' retrograde' : '';
   const dig      = chart.western.dignities[bodyId]?.label;
-  const digNote  = dig === 'domicile'   ? ' (in its home sign, expressing itself most naturally)'
-                 : dig === 'exaltation' ? ' (in exaltation — elevated and highly effective here)'
-                 : dig === 'detriment'  ? ' (in detriment — working against its nature, a real creative tension)'
-                 : dig === 'fall'       ? ' (in fall — expressing its energy in a roundabout way, requiring extra effort)'
-                 : '';
+  const digNote  = dig ? ` (${dig})` : '';
 
   const bodyAspects = chart.western.aspects
     .filter(a => a.a === bodyId || a.b === bodyId)
     .sort((a, b) => a.orb - b.orb)
-    .slice(0, 4)
+    .slice(0, 5)
     .map(a => {
       const other = a.a === bodyId ? a.b : a.a;
       const otherName = BODY_LABEL[other] ?? other;
-      return `${a.kind} ${otherName} (${a.orb.toFixed(1)}° orb)`;
+      return `${a.kind} ${otherName} (${a.orb.toFixed(1)}°)`;
     });
 
   const aspLine = bodyAspects.length > 0
-    ? ` Its major aspects in this chart: ${bodyAspects.join(', ')}.`
+    ? ` Aspects: ${bodyAspects.join(', ')}.`
     : '';
 
   const name = BODY_LABEL[bodyId] ?? bodyId;
@@ -121,13 +113,13 @@ export function buildBodySection(bodyId: BodyId, chart: NatalChart): InterpretSe
   return {
     type: 'body',
     label: `${cap(bodyId)} in ${cap(body.sign)} · House ${body.house}`,
-    prompt: `Write a warm, human, psychologically rich interpretation of the ${name}${retro} in ${body.sign}${digNote}, placed in the ${body.house}th house of this chart.${aspLine}
+    prompt: `Interpret ${name}${retro} in ${body.sign}${digNote}, House ${body.house}.${aspLine}
 
-Start by describing what it actually feels like — from the inside — to carry this ${name} placement through a life. What drives, tensions, gifts, or blind spots does it tend to create? Use specific, vivid language and metaphor rather than abstract astrological terminology. When you do use a technical term, explain it naturally in the same sentence.
+Draw on the full chart in context. Synthesize sign + house + aspects + the nodal axis + any elemental or modality patterns you observe. What does this configuration mechanically produce in the person's psychology — not what it symbolizes in the abstract, but what internal dynamic it actually creates? What is the core tension or polarity at work: the desire structure and the fear structure, the drive toward expression and the defense against it?
 
-Then ground it in this specific chart: weave in one or two other placements you can see in the chart context that most powerfully color or modify this ${name}. Be specific — name them and say how they interact.
+Trace the compensatory arc: what adaptive strategy does this placement produce, how does that strategy serve the person, and where does it break down — in relationships, in ambition, in the body, in the inner life? Show the mechanism that links the placement to the pattern.
 
-Speak directly to the person using "you." Close with a single honest question or reflection they can sit with.`,
+Do not explain what the placement means in general. Reveal what it does in this specific chart.`,
   };
 }
 
@@ -162,13 +154,13 @@ export function buildHouseSection(houseNum: number, chart: NatalChart): Interpre
   return {
     type: 'house',
     label: `House ${houseNum} · ${cap(sign)} on cusp`,
-    prompt: `Write a warm, human interpretation of the ${houseNum}${ordSuffix(houseNum)} house in this chart — the area governing ${houseThemes[houseNum] ?? 'this life domain'} — with ${sign} on the cusp.${planetsNote}
+    prompt: `Interpret the ${houseNum}${ordSuffix(houseNum)} house — ${houseThemes[houseNum] ?? 'this life domain'} — with ${sign} on the cusp.${planetsNote}
 
-Describe what ${sign} energy brings to this life area in a way a non-astrologer would immediately recognize and feel. What does it look like when someone approaches ${houseThemes[houseNum] ?? 'this domain'} through the particular lens of ${sign}? Use everyday language and a concrete image or metaphor.
+Draw on the full chart. Analyze what this house configuration mechanically produces: how does ${sign}'s specific psychological signature shape the approach to this life domain — not just the style, but the underlying motivation, the defensive structure around it, and the growth edge? What does ${sign} want from this arena, and what does it fear? How does that tension play out in actual behavior?
 
-Then speak to this specific chart: note how any planets in the house (if present) add their own energy to the story, or if it's empty, how the house ruler's placement elsewhere in the chart shapes these themes.
+If planets occupy the house, show how their drives interact with and complicate the sign's energy — what inner conflicts or amplifications arise? If the house is empty, trace how the ruler's placement elsewhere imports its conditions into this domain.
 
-Speak directly to the person. End with one question or reflection they can carry with them.`,
+Root every observation in what is specific to this chart. Name the contradiction at the heart of it.`,
   };
 }
 
@@ -176,25 +168,16 @@ export function buildAspectSection(asp: Aspect): InterpretSection {
   const aName = BODY_LABEL[asp.a] ?? asp.a;
   const bName = BODY_LABEL[asp.b] ?? asp.b;
 
-  const aspectMeaning: Record<string, string> = {
-    conjunction: 'a merging — both planets operate almost as one fused energy, amplified and inseparable',
-    opposition:  'a polarity — these two energies pull in opposite directions, creating tension but also the possibility of integration',
-    trine:       'a natural harmony — these energies flow together easily, often representing gifts that feel almost effortless',
-    square:      'a creative tension — these energies are in friction, pushing against each other in ways that can frustrate but also forge real strength',
-    sextile:     'a gentle opportunity — these planets support each other when you make the effort to bring them together',
-    quincunx:    'an awkward adjustment — these two energies don\'t speak each other\'s language easily, requiring constant recalibration',
-  };
-
   return {
     type: 'aspect',
     label: `${aName} ${asp.kind} ${bName}`,
-    prompt: `Write a warm, human interpretation of the ${asp.kind} — ${aspectMeaning[asp.kind] ?? 'a significant angle'} — between the ${aName} and ${bName} in this chart (orb ${asp.orb.toFixed(1)}°, ${asp.applying ? 'still building toward exact' : 'past exact and separating'}).
+    prompt: `Interpret the ${asp.kind} between ${aName} and ${bName} in this chart (${asp.orb.toFixed(1)}° orb, ${asp.applying ? 'applying' : 'separating'}).
 
-Start by describing what this combination of planetary energies creates in the texture of daily life. What inner tension, gift, or recurring pattern might someone with this aspect notice in themselves? Bring it to life with a specific image or scenario — make it recognizable and human.
+Draw on the full chart. What does this specific planetary pairing create as an internal dynamic — not what a ${asp.kind} generically means, but what these two particular drives, in these signs and houses, produce in this person's psychology? How do they amplify, contradict, block, or shadow each other? What is the felt quality of their interaction — what does the person actually experience around this energy, and what do they tend to do with it?
 
-Then root it in this chart specifically: what are the signs and houses involved, and how do those details color this aspect? If the orb is tight, note that this is one of the stronger forces in the chart.
+Trace the mechanism: what compensatory pattern does this aspect generate? Where does it produce strength through friction, and where does it create a recurring breakdown — in relationships, in self-expression, in the way the person moves toward what they want? If the orb is tight, treat this as a primary psychological structure, not background noise.
 
-Speak in "you." Close with one honest, open question.`,
+Identify the developmental arc: what becomes available when this tension is held consciously rather than enacted automatically?`,
   };
 }
 
@@ -210,15 +193,15 @@ export function buildVedicBodySection(bodyId: BodyId, chart: NatalChart): Interp
   return {
     type: 'body',
     label: `Vedic · ${bodyName} in ${cap(body.sign)} · ${nakName} pada ${body.nakshatraPada}`,
-    prompt: `Write a warm, soulful Jyotish (Vedic astrology) interpretation of ${bodyName}${retro} in the sidereal sign of ${body.sign}, placed in the ${body.house}th house, in the nakshatra of ${nakName} (pada ${body.nakshatraPada}), ruled by ${lordName}.
+    prompt: `Interpret ${bodyName}${retro} in sidereal ${body.sign}, House ${body.house}, nakshatra ${nakName} pada ${body.nakshatraPada}, nakshatra lord ${lordName}.
 
-Begin with what this placement means at the level of the soul — what has this person come here to experience, develop, or work through? The Vedic chart speaks to karma, dharma, and the deeper currents beneath a life's surface. Bring that dimension alive in plain language.
+Draw on the full Vedic chart. Synthesize rashi + bhava + nakshatra + nakshatra lord's placement + the graha's relationship to the lagna lord and nodal axis. What does this configuration produce as a soul-level pattern — not what it symbolizes in a textbook sense, but what karmic structure and developmental pressure it creates in this specific chart?
 
-Explain the nakshatra — one of 27 lunar mansions that divide the zodiac into finer degrees — and what ${nakName} specifically brings: its mythological symbolism, its ruling deity's energy, and how that shapes the expression of ${bodyName} here. Then speak to the rashi (sign) and house. Weave these layers together into a coherent picture.
+Analyze ${nakName} precisely: its mythic substrate, the quality of its ruling deity's energy, and how that nakshatra's specific psychological signature shapes the way ${bodyName} expresses here — what it drives toward, what it fears, what it tries to resolve. Then show how rashi and bhava add their conditions to that core impulse.
 
-If ${bodyName} is Rahu or Ketu, address the karmic axis: what this node's position suggests about past-life material and the soul's forward direction in this lifetime.
+If interpreting Rahu or Ketu, focus on the mechanism of the karmic axis: what the south node position indicates about the over-developed psychological function being released, and what the north node's placement is demanding be built — not as spiritual advice, but as a description of the tension the person actually lives with.
 
-Speak directly to the person. Use "you." Explain technical Vedic terms naturally as you use them. Close with a question or reflection rooted in the soul's journey.`,
+Show the evolutionary arc latent in the configuration without flattening it into either damage or aspiration.`,
   };
 }
 
@@ -240,17 +223,13 @@ export function buildTransitSection(transit: TransitAspect, natal: NatalChart): 
   return {
     type: 'transit',
     label: `Transit: ${tName} ${transit.kind} natal ${nName}`,
-    prompt: `Write a warm, human interpretation of this current transit: ${tName} in the sky is forming a ${transit.kind} (an orb of ${transit.orb.toFixed(1)}°) with the natal ${nName} in ${natalBody?.sign ?? '?'}, which lives in the ${natalBody?.house ?? '?'}th house of this chart.
+    prompt: `Interpret transiting ${tName} ${transit.kind} natal ${nName} in ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'} (${transit.orb.toFixed(1)}° orb). ${timingNote} ${durationNote}
 
-${timingNote} ${durationNote}
+Draw on the full natal chart. What does this transit activate in the natal chart's existing architecture — not as an isolated event, but as a pressure applied to a specific psychological structure? What is the natal ${nName}'s role in this chart — what complex does it anchor, what house does it rule, how does it connect to other configurations — and how does transiting ${tName} now bear on that structure?
 
-Begin by describing what this transit tends to feel like from the inside — the kinds of experiences, emotions, or themes that tend to surface during this activation. Make it recognizable and human. Avoid the language of prediction ("this will cause...") — instead, speak in terms of themes, invitations, and energies that are present.
+Analyze the mechanism of contact: what does ${tName} as a transiting force want to reorganize, dissolve, accelerate, or crystallize, and what in the natal ${nName}'s configuration is being asked to respond? Describe the internal quality of this activation — the felt pressure, the emerging themes, the territory being entered. Speak about what is being demanded, not what will happen.
 
-Explain the transit planets and the natal point in plain language. A non-astrologer reading this should understand immediately what ${tName} represents, what the natal ${nName} represents, and why their current contact matters.
-
-Use the natal chart context to make this specific — reference the house and sign of the natal ${nName}, and anything else in the chart that adds texture to this story.
-
-Speak in "you." Close with one practical, human question the person can bring into their life right now.`,
+Where relevant, reference other natal planets being simultaneously activated or the house that transiting ${tName} is moving through.`,
   };
 }
 
@@ -270,15 +249,13 @@ export function buildProgressedBodySection(
   return {
     type: 'progression',
     label: `Progressed ${name} in ${cap(progBody.sign)}`,
-    prompt: `Write a warm, psychologically rich interpretation of this secondary progression: the progressed ${name} is now moving through ${progBody.sign}${progBody.isRetrograde ? ', retrograde' : ''}, in the ${progBody.house}th house.
+    prompt: `Interpret progressed ${name}${progBody.isRetrograde ? ' retrograde' : ''} in ${progBody.sign}, House ${progBody.house}. Natal ${name}: ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'}. ${movesNote}
 
-Secondary progressions (a technique where each day after birth symbolically equals one year of life) describe the slow unfolding of your inner world — not what's happening to you externally, but who you are becoming. ${movesNote}
+Draw on the full natal chart. What does the shift from the natal sign to the progressed sign represent as an internal developmental event — not symbolically in general, but specifically for someone with this natal ${name} configuration, in this chart, with these aspects and house placements? What in the natal setup made this sign transition necessary or inevitable? What psychological function was reaching its limits in the natal sign, and what is the progressed sign now being asked to develop?
 
-The natal ${name} is in ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'}. Compare and contrast: what shift in energy, style, or inner orientation does moving from the natal sign to the progressed sign represent? What chapter is quietly opening?
+Analyze the mechanism: what new psychological territory is the progressed ${name} mapping? What capacity is being asked to come online — and what resistance, avoidance, or disorientation typically accompanies it? Name the inner atmosphere of this chapter with precision.
 
-Describe what this progressed placement tends to feel like from the inside — the kind of inner atmosphere, the shifts in priority or desire, the new capacities beginning to emerge. Use everyday language and metaphor. Make it recognizable.
-
-Speak in "you." Close with a question or reflection that helps the person see what this chapter of their life is calling them toward.`,
+If the progressed ${name} has formed any new aspects not present natally, address what those contacts are activating.`,
   };
 }
 
@@ -293,15 +270,13 @@ export function buildProgressedAspectSection(asp: ProgressedAspect, natal: Natal
   return {
     type: 'progression',
     label: `Progressed ${pName} ${asp.kind} natal ${nName}`,
-    prompt: `Write a warm, psychologically rich interpretation of this progressed aspect: the progressed ${pName} is forming a ${asp.kind} (${asp.orb.toFixed(1)}° orb) with the natal ${nName} in ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'}. ${buildingNote}
+    prompt: `Interpret progressed ${pName} ${asp.kind} natal ${nName} in ${natalBody?.sign ?? '?'}, House ${natalBody?.house ?? '?'} (${asp.orb.toFixed(1)}° orb, ${asp.applying ? 'applying' : 'separating'}). ${buildingNote}
 
-Secondary progressions describe inner development — the slow maturing and shifting of who you are, not just what happens to you. A progressed aspect at 1° orb is active and significant, marking a real turning point in inner life.
+Draw on the full natal chart. What does this aspect contact activate in the person's existing psychological structure — not what a ${asp.kind} generically does, but what happens when the progressed ${pName}'s current developmental agenda meets the natal ${nName}'s established complex? What is the nature of this inner encounter: a collision, a recognition, an integration, a confrontation with something previously unconscious?
 
-Describe in plain, human terms what this particular planetary combination tends to stir — what inner meeting, conflict, awakening, or resolution it represents. What parts of the person's inner life are being brought into relationship? What is being asked to grow or change?
+Analyze the natal ${nName}'s role in this chart specifically — what it represents, what it's been carrying, how it connects to other configurations — and then show what the progressed ${pName} is now asking of that structure. What is being pressured to change, and what in the person will resist that change?
 
-Use the natal chart context: reference the houses and signs of both planets, and what each represents in this specific chart. Make it personal and specific, not generic.
-
-Speak in "you." End with a single, honest reflection or question.`,
+Name the psychological event taking place with precision. What capacity is being demanded, and what old pattern is being asked to yield?`,
   };
 }
 
@@ -326,21 +301,15 @@ export function buildDashaSection(maha: DashaPeriod, antar: DashaPeriod, natal: 
   return {
     type: 'dasha',
     label: `${mahaName} Mahadasha · ${antarName} Antardasha`,
-    prompt: `Write a warm, soulful Jyotish interpretation of this Vimshottari Dasha period.
-
-The Vimshottari Dasha system is one of the most powerful timing tools in Vedic astrology. It divides life into planetary chapters — long "Mahadashas" of 6 to 20 years, each governed by a planet that colors all themes of that period, with shorter "Antardashas" (sub-periods) nested within them.
-
-Currently: ${mahaName} Mahadasha (${maha.startISO} to ${maha.endISO} — ${maha.durationYears.toFixed(1)} years), with ${antarName} Antardasha (${antar.startISO} to ${antar.endISO}).
+    prompt: `Interpret the current Vimshottari Dasha period: ${mahaName} Mahadasha (${maha.startISO}–${maha.endISO}, ${maha.durationYears.toFixed(1)} yrs) / ${antarName} Antardasha (${antar.startISO}–${antar.endISO}).
 
 In this natal Vedic chart: ${mahaStr}; ${antarStr}.
 
-Begin by describing the essential nature of ${mahaName} as a planetary energy — what it represents in Jyotish, the qualities it activates, the domains of life it governs. Then explain what a ${mahaName} Mahadasha tends to feel like: the broad atmosphere, the themes that tend to arise, the lessons it brings. Use plain language — assume the reader has never heard of Dashas before.
+Draw on the full Vedic chart. What does this Dasha period mechanically activate in this specific chart — not what a ${mahaName} Mahadasha generically produces, but what happens when ${mahaName}, as placed and conditioned in this particular chart, takes on the role of ruling the life chapter? What natal configurations does it amplify, what karmic material does it surface, which houses does it govern, and what does its nakshatra placement tell you about the quality and direction of the period?
 
-Then bring in the ${antarName} sub-period as a more specific flavor within that broader chapter. What does the combination of ${mahaName}/${antarName} tend to create?
+Analyze ${mahaName}'s actual condition in this chart — dignity, house, aspects, relationship to lagna and nodes — and show how those conditions shape the texture of the current period. Then layer in the ${antarName} sub-period: how does ${antarName}'s natal placement interact with ${mahaName}'s, and what specific sub-themes or tensions does this combination introduce within the broader chapter?
 
-Make it specific to this chart: where is ${mahaName} placed? What house does it rule? What nakshatra does it occupy, and what does that nakshatra's energy contribute? Do the same briefly for ${antarName}.
-
-Speak in "you" throughout. Close with a reflection on what this period is inviting the person to step into or let go of.`,
+Be precise about what is being demanded and what is being released. Name the inner and outer terrain of this period as it pertains to this chart specifically.`,
   };
 }
 
@@ -368,19 +337,13 @@ export function buildSynastryAspectSection(
   return {
     type: 'synastry',
     label: `Synastry: ${nameA}'s ${aName} ${asp.kind} ${nameB}'s ${bName}`,
-    prompt: `Write a warm, human interpretation of this synastry inter-aspect: ${nameA}'s ${aName} (in ${bodyA?.sign ?? '?'}, House ${bodyA?.house ?? '?'}) is forming a ${asp.kind} (${asp.orb.toFixed(1)}° orb) with ${nameB}'s ${bName} (in ${bodyB?.sign ?? '?'}).
+    prompt: `Interpret this synastry contact: ${nameA}'s ${aName} (${bodyA?.sign ?? '?'}, House ${bodyA?.house ?? '?'}) ${asp.kind} ${nameB}'s ${bName} (${bodyB?.sign ?? '?'}) — ${asp.orb.toFixed(1)}° orb. ${nameB}'s key placements: ${bSummary}. The full natal chart provided is ${nameA}'s.
 
-Synastry is the astrology of relationship — comparing two people's charts to understand the energetic dynamics between them. When one person's planet contacts another person's planet, something real is created between them: attraction, tension, ease, or friction, depending on the planets and aspect involved.
+Analyze what this specific inter-aspect creates as a relational dynamic — not what a ${asp.kind} generically means, but what happens when ${nameA}'s ${aName}, conditioned by its natal sign and house, makes this contact with ${nameB}'s ${bName}. What does each person's planet represent in its own chart — what complex does it carry, what need does it express — and how does the contact between them produce a specific interpersonal dynamic?
 
-${nameB}'s key placements for context: ${bSummary}. The full natal chart in your context is ${nameA}'s.
+Name the mechanism: what does ${nameA} tend to activate or trigger in ${nameB} around this contact, and what does ${nameB} activate in ${nameA}? Is this a point of magnetic recognition, mutual amplification, unconscious projection, or unresolved tension that keeps pulling them back? Where is the gift, and where is the growing edge — and are those the same thing?
 
-Begin by describing what this planetary combination tends to create between two people — the felt quality of the dynamic, what each person tends to experience in the relationship around this energy. Be specific to the planets involved (${aName} and ${bName}) and what they each represent.
-
-Then speak to the aspect type: a ${asp.kind} between these two planets — is this a point of natural magnetism, creative tension, unconscious projection, or something the two people have to consciously work with? Give an honest picture of both the gift and the growing edge.
-
-Use the signs and houses for specificity. Make it personal to both people.
-
-Speak to ${nameA} directly (using "you"), while also describing how ${nameB} likely experiences this. Close with one reflection on what this connection is inviting both people to develop.`,
+Consider what each person's wound or strength in this area calls forth from the other. Speak to ${nameA} directly. Be honest about the complexity of the dynamic without reducing it to either fate or warning.`,
   };
 }
 
