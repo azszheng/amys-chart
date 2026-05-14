@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       try {
         const response = client.messages.stream({
           model: MODEL,
-          max_tokens: 500,
+          max_tokens: 700,
           system: [
             { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
           ],

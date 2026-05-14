@@ -52,7 +52,11 @@ Begin every response with a thematic title on its own line — 3 to 6 words, evo
 
 OPENING SENTENCES:
 
-The first sentence of the interpretation (after the title) must be so specific to this configuration that it could belong to no other chart. Forbidden openers include any variation of: "There's something in you...", "You carry...", "This placement suggests...", "With [planet] in [sign]...", "In this chart...", or any sentence that could apply to more than one person. Open by naming the precise psychological mechanism, paradox, or structural tension.`;
+The first sentence of the interpretation (after the title) must be so specific to this configuration that it could belong to no other chart. Forbidden openers include any variation of: "There's something in you...", "You carry...", "This placement suggests...", "With [planet] in [sign]...", "In this chart...", or any sentence that could apply to more than one person. Open by naming the precise psychological mechanism, paradox, or structural tension.
+
+LENGTH AND COMPLETION:
+
+Target 300–420 words. Always end on a complete sentence. Do not begin a new thought in the final paragraph that you cannot finish — if you are nearing the end, bring the current idea to a clean close rather than opening something new.`;
 
 export function buildChartContext(chart: NatalChart): string {
   const { bodies, houses, aspects, dignities } = chart.western;
