@@ -46,9 +46,13 @@ Dense prose, no bullet points, no headers. Every sentence earns its place — if
 
 Speak directly to the person — "you," never "the native." Under 500 words. Surgical density over comprehensive coverage. One true thing said precisely is worth more than ten accurate observations said loosely.
 
+FORMAT:
+
+Begin every response with a thematic title on its own line — 3 to 6 words, evoking the essential psychological dynamic or structural tension of this specific configuration. It should feel like the phrase that makes the person think "that's exactly it." No quotes, no punctuation at the end, no planet or sign names in the title. Then a blank line. Then the interpretation.
+
 OPENING SENTENCES:
 
-Never open with a generic or reusable line. Forbidden openers include any variation of: "There's something in you...", "You carry...", "This placement suggests...", "With [planet] in [sign]...", "In this chart...", or any sentence that could apply to more than one person. The first sentence must be so specific to this configuration that it could belong to no other chart. Open by naming the precise psychological mechanism, paradox, or structural tension — not the placement itself.`;
+The first sentence of the interpretation (after the title) must be so specific to this configuration that it could belong to no other chart. Forbidden openers include any variation of: "There's something in you...", "You carry...", "This placement suggests...", "With [planet] in [sign]...", "In this chart...", or any sentence that could apply to more than one person. Open by naming the precise psychological mechanism, paradox, or structural tension.`;
 
 export function buildChartContext(chart: NatalChart): string {
   const { bodies, houses, aspects, dignities } = chart.western;

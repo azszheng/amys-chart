@@ -162,7 +162,30 @@ export default function InterpretationPanel({ chart, section, onClose, cachedTex
               Error: {error}
             </p>
           )}
-          {text && <SimpleMarkdown text={text} />}
+          {text && (() => {
+            const newline = text.indexOf('\n');
+            const hasTitle = newline > 0;
+            const title = hasTitle ? text.slice(0, newline).trim() : '';
+            const body   = hasTitle ? text.slice(newline + 1).trimStart() : text;
+            return (
+              <>
+                {title && (
+                  <p style={{
+                    margin: '0 0 16px',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: 'var(--accent)',
+                    fontFamily: 'var(--font-sans)',
+                    letterSpacing: '-0.01em',
+                    lineHeight: 1.3,
+                  }}>
+                    {title}
+                  </p>
+                )}
+                {body && <SimpleMarkdown text={body} />}
+              </>
+            );
+          })()}
           {!done && !loading && !error && (
             <span style={{ display: 'inline-block', width: 8, height: 14, background: 'var(--accent)', opacity: 0.7, verticalAlign: 'middle', animation: 'blink 1s step-end infinite' }} />
           )}
