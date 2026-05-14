@@ -8,6 +8,8 @@ type Props = {
   chart: NatalChart;
   section: InterpretSection;
   onClose: () => void;
+  cachedText?: string;
+  onCached?: (text: string) => void;
 };
 
 function SimpleMarkdown({ text }: { text: string }) {
@@ -24,7 +26,7 @@ function SimpleMarkdown({ text }: { text: string }) {
   );
 }
 
-export default function InterpretationPanel({ chart, section, onClose }: Props) {
+export default function InterpretationPanel({ chart, section, onClose, cachedText, onCached }: Props) {
   const [text,    setText]    = useState('');
   const [loading, setLoading] = useState(true);
   const [done,    setDone]    = useState(false);
@@ -32,6 +34,13 @@ export default function InterpretationPanel({ chart, section, onClose }: Props) 
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    if (cachedText) {
+      setText(cachedText);
+      setLoading(false);
+      setDone(true);
+      return;
+    }
+
     setText('');
     setLoading(true);
     setDone(false);
@@ -59,6 +68,7 @@ export default function InterpretationPanel({ chart, section, onClose }: Props) 
         const reader = res.body!.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let accumulated = '';
 
         setLoading(false);
 
@@ -74,15 +84,20 @@ export default function InterpretationPanel({ chart, section, onClose }: Props) 
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
             const payload = line.slice(6).trim();
-            if (payload === '[DONE]') { setDone(true); return; }
+            if (payload === '[DONE]') {
+              setDone(true);
+              onCached?.(accumulated);
+              return;
+            }
             try {
               const { token, error: e } = JSON.parse(payload);
               if (e) { setError(e); return; }
-              if (token) setText(prev => prev + token);
+              if (token) { accumulated += token; setText(prev => prev + token); }
             } catch { /* ignore malformed line */ }
           }
         }
         setDone(true);
+        onCached?.(accumulated);
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
           setError((err as Error).message);

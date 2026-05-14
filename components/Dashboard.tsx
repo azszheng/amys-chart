@@ -86,6 +86,11 @@ export default function Dashboard() {
   const [tab,       setTab]       = useState<TableTab>('planets');
   const [modal,     setModal]     = useState<ModalId | null>(null);
   const [interpSection, setInterpSection] = useState<InterpretSection | null>(null);
+  const [interpCache,   setInterpCache]   = useState<Map<string, string>>(() => new Map());
+
+  function cacheResult(key: string, text: string) {
+    setInterpCache(prev => new Map(prev).set(key, text));
+  }
 
   function handleResolved(b: ResolvedBirth, c: NatalChart) {
     setBirth(b);
@@ -288,6 +293,8 @@ export default function Dashboard() {
           chart={chart}
           section={interpSection}
           onClose={() => setInterpSection(null)}
+          cachedText={interpCache.get(interpSection.prompt)}
+          onCached={(text) => cacheResult(interpSection.prompt, text)}
         />
       )}
     </div>
