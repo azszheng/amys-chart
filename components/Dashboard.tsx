@@ -15,9 +15,10 @@ import ProgressionsDrawer from '@/components/modals/ProgressionsDrawer';
 import DashasDrawer from '@/components/modals/DashasDrawer';
 import SynastryDrawer from '@/components/modals/SynastryDrawer';
 import InterpretationPanel from '@/components/interpret/InterpretationPanel';
+import ModeSelector from '@/components/interpret/ModeSelector';
 import { SIGN_GLYPH } from '@/components/charts/glyphs';
 import type { ResolvedBirth, NatalChart } from '@/lib/astro/types';
-import type { InterpretSection } from '@/lib/ai/prompts';
+import type { InterpretSection, InterpretMode } from '@/lib/ai/prompts';
 
 type TableTab = 'planets' | 'houses' | 'aspects' | 'dignities' | 'vedic';
 
@@ -87,9 +88,18 @@ export default function Dashboard() {
   const [modal,     setModal]     = useState<ModalId | null>(null);
   const [interpSection, setInterpSection] = useState<InterpretSection | null>(null);
   const [interpCache,   setInterpCache]   = useState<Map<string, string>>(() => new Map());
+  const [interpMode,    setInterpMode]    = useState<InterpretMode>(() => {
+    if (typeof window === 'undefined') return 'deepdive';
+    return (localStorage.getItem('interpretMode') as InterpretMode) ?? 'deepdive';
+  });
 
   function cacheResult(key: string, text: string) {
     setInterpCache(prev => new Map(prev).set(key, text));
+  }
+
+  function handleModeChange(m: InterpretMode) {
+    setInterpMode(m);
+    localStorage.setItem('interpretMode', m);
   }
 
   function handleResolved(b: ResolvedBirth, c: NatalChart) {
@@ -238,6 +248,14 @@ export default function Dashboard() {
         </section>
       )}
 
+      {/* ── Reading Style ── */}
+      {chart && (
+        <section style={{ ...section, padding: '14px 20px' }}>
+          <p style={{ ...sectionHead, marginBottom: 12 }}>Reading Style</p>
+          <ModeSelector mode={interpMode} onChange={handleModeChange} />
+        </section>
+      )}
+
       {/* ── Actions ── */}
       {chart && (
         <section style={{ ...section, padding: '14px 20px' }}>
@@ -293,8 +311,9 @@ export default function Dashboard() {
           chart={chart}
           section={interpSection}
           onClose={() => setInterpSection(null)}
-          cachedText={interpCache.get(interpSection.prompt)}
-          onCached={(text) => cacheResult(interpSection.prompt, text)}
+          mode={interpMode}
+          cachedText={interpCache.get(`${interpMode}|${interpSection.prompt}`)}
+          onCached={(text) => cacheResult(`${interpMode}|${interpSection.prompt}`, text)}
         />
       )}
     </div>

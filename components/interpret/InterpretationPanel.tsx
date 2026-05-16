@@ -2,12 +2,19 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { NatalChart } from '@/lib/astro/types';
-import type { InterpretSection } from '@/lib/ai/prompts';
+import type { InterpretSection, InterpretMode } from '@/lib/ai/prompts';
+
+const MODE_LABEL: Record<InterpretMode, string> = {
+  essence:    'Essence',
+  deepdive:   'Deep Dive',
+  astrologer: 'Astrologer',
+};
 
 type Props = {
   chart: NatalChart;
   section: InterpretSection;
   onClose: () => void;
+  mode?: InterpretMode;
   cachedText?: string;
   onCached?: (text: string) => void;
 };
@@ -26,7 +33,7 @@ function SimpleMarkdown({ text }: { text: string }) {
   );
 }
 
-export default function InterpretationPanel({ chart, section, onClose, cachedText, onCached }: Props) {
+export default function InterpretationPanel({ chart, section, onClose, mode = 'deepdive', cachedText, onCached }: Props) {
   const [text,    setText]    = useState('');
   const [loading, setLoading] = useState(true);
   const [done,    setDone]    = useState(false);
@@ -54,7 +61,7 @@ export default function InterpretationPanel({ chart, section, onClose, cachedTex
         const res = await fetch('/api/interpret', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chart, section }),
+          body: JSON.stringify({ chart, section, mode }),
           signal: controller.signal,
         });
 
@@ -210,7 +217,7 @@ export default function InterpretationPanel({ chart, section, onClose, cachedTex
             </button>
           )}
           <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--fg-dim)', fontFamily: 'var(--font-mono)' }}>
-            {done ? `${text.split(/\s+/).filter(Boolean).length} words` : loading ? '…' : 'streaming'}
+            {MODE_LABEL[mode]} · {done ? `${text.split(/\s+/).filter(Boolean).length} words` : loading ? '…' : 'streaming'}
           </span>
         </div>
       </div>
